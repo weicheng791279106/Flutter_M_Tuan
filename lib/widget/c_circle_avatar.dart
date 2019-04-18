@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:m_tuan_flutter/util/string_util.dart';
 
 class CCircleAvatar extends StatelessWidget{
 
@@ -17,10 +18,10 @@ class CCircleAvatar extends StatelessWidget{
     url = url ?? "";
 
     return new SizedBox.fromSize(
-        size: new Size(width, height),
-        child: new CircleAvatar(
-            backgroundColor:loadingColor,
-            backgroundImage: new NetworkImage(url)
+        size: Size(width, height),
+        child: CircleAvatar(
+            backgroundColor: loadingColor,
+            backgroundImage: StringUtils.isEmpty(url) ? AssetImage("images/ic_avatar_default.webp"):NetworkImage(url),
         )
     );
   }

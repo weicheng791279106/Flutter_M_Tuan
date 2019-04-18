@@ -8,6 +8,8 @@ class CContainer extends StatelessWidget{
 
   Widget child;
   bool expand;
+  double width;
+  double height;
   int flex;
   Color color;
   Color borderColor;
@@ -20,6 +22,7 @@ class CContainer extends StatelessWidget{
   EdgeInsetsGeometry padding;
   EdgeInsetsGeometry margin;
   AlignmentGeometry alignment;
+  Gradient gradient;
 
   Direction direction;
   List<Widget> children;
@@ -30,11 +33,11 @@ class CContainer extends StatelessWidget{
   GestureTapCallback onTap;
   GestureLongPressCallback onLongPress;
 
-  CContainer({this.child, this.expand, this.flex, this.color, this.borderColor,
+  CContainer({this.child, this.width,this.height,this.expand, this.flex, this.color, this.borderColor,
     this.borderWidth, this.borderRadius, this.leftTopBorderRadius,
     this.rightTopBorderRadius, this.leftBottomBorderRadius,
     this.rightBottomBorderRadius, this.padding, this.margin, this.alignment,
-    this.direction,this.children,
+    this.direction,this.children,this.gradient,
     this.mainAxisAlignment,this.mainAxisSize,this.crossAxisAlignment,
     this.onTap, this.onLongPress});
 
@@ -43,6 +46,7 @@ class CContainer extends StatelessWidget{
     expand = expand ?? false;
     flex = flex ?? 1;
 
+    if(width != null || height != null) return SizedBox(width: width,height: height,child: getContainerWidget(),);
     if(expand) return new Expanded(child: getContainerWidget(),flex: flex,);
     return getContainerWidget();
   }
@@ -72,14 +76,15 @@ class CContainer extends StatelessWidget{
         margin: margin,
         alignment: alignment,
         decoration: new BoxDecoration(
-            color: color,
+            color: gradient != null ? null:color, /*有渐变属性的话color要传null*/
+            gradient: gradient,
             border: new Border.all(color: borderColor,width: borderWidth),
             borderRadius: new BorderRadius.only(
                 topLeft: new Radius.circular(leftTopBorderRadius),
                 topRight: new Radius.circular(rightTopBorderRadius),
                 bottomLeft: new Radius.circular(leftBottomBorderRadius),
-                bottomRight: new Radius.circular(rightBottomBorderRadius)
-            )
+                bottomRight: new Radius.circular(rightBottomBorderRadius),
+            ),
         ),
       ),
       onTap: onTap,
