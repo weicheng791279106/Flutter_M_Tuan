@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/conts/conts.dart';
+import 'package:m_tuan_flutter/conts/text_size.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:m_tuan_flutter/widget/c_circle_avatar.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
@@ -42,20 +43,19 @@ class HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 padding: EdgeInsetsDirectional.only(start: 12),
                 children: <Widget>[
-                  CText("深圳",icon: Icons.keyboard_arrow_down),
-                  CText("多云 27°",textSize: 7,)
+                  CText("深圳",textSize:15.5,bold:true,icon: Icons.keyboard_arrow_down,iconSize: 17,),
+                  CText("多云 27°",textSize: 10,margin: EdgeInsetsDirectional.only(top: 5),)
                 ],
               ),
               CContainer(
                 expand: true,
-                padding: EdgeInsetsDirectional.only(top: 10,bottom: 10),
+                padding: EdgeInsetsDirectional.only(top: 12,bottom: 12),
                 margin: EdgeInsetsDirectional.only(start: 10,end: 15),
                 alignment: Alignment.center,
                 color: Colors.grey[100],
                 borderRadius: 10,
                 child: CText(
                   "大汉堡",
-                  textSize: 10,
                   imageAsset: "images/ic_search.png",
                   imageScale: 2.3,
                   drawableDirection: DrawableDirection.left,
@@ -73,6 +73,7 @@ class HomePageState extends State<HomePage> {
                 itemCount: 8,
                 //controller: scrollController,
                 physics: AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsetsDirectional.only(bottom: 15),
               ),
               onRefresh: (){},
             ),
@@ -286,7 +287,7 @@ class TravelWidget extends StatelessWidget{
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Expanded(child: CText(title,textColor: Colors.white,bold: true,)),
+                  Expanded(child: CText(title,textColor: Colors.white,bold: true,textSize: TextSize.Title,)),
                   CImage(asset: "images/ic_close_item.png",scale: 1.8,),
                 ],
               ),
@@ -326,16 +327,16 @@ class TravelWidget extends StatelessWidget{
               leftBottomBorderRadius: 2,
               rightTopBorderRadius: 2,
               padding: EdgeInsetsDirectional.only(start: 3,end: 3,top: 1,bottom: 1),
-              child: CText(subTitle,textSize: 8.5,textColor: Colors.white,),
+              child: CText(subTitle,textColor: Colors.white,textSize: 10,),
             )
           ],
         ),
-        CText(title,bold: true,margin: EdgeInsetsDirectional.only(top: 6,bottom: 4),textSize: 10,maxLines: 1,),
+        CText(title,bold: true,margin: EdgeInsetsDirectional.only(top: 6,bottom: 4),maxLines: 1,),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CText("￥" + price,textColor: Colors.redAccent,textSize: 8,bold: true,),
-            CText(" /人",textColor: Colors.grey,textSize: 8,),
+            CText("￥" + price,textColor: Colors.redAccent,textSize: 11,bold: true,),
+            CText(" /人",textColor: Colors.grey,textSize: 11,),
           ],
         ),
       ],
@@ -396,7 +397,7 @@ class MovieWidget extends StatelessWidget{
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            CText("正在热映影片",bold: true,textSize: 13,),
+            CText("正在热映影片",bold: true,textSize: TextSize.Title,),
             CImage(asset: "images/ic_close_item.png",scale: 1.8,),
           ],
         ),
@@ -441,11 +442,11 @@ class MovieWidget extends StatelessWidget{
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
-                child: CText(subTitle,textColor: Colors.white,textSize: 9,bold: true,),
+                child: CText(subTitle,textColor: Colors.white,bold: true,),
               )
             ],
           ),
-          CText(title,margin: EdgeInsetsDirectional.only(top: 9,start: 3,end: 3),textSize: 9.5,bold: true,)
+          CText(title,margin: EdgeInsetsDirectional.only(top: 9,start: 3,end: 3),bold: true,)
         ],
     ),);
   }
@@ -495,28 +496,28 @@ class DiscountItemWidget3 extends StatelessWidget{
           expand: true,
           direction: Direction.column,
           children: <Widget>[
-            CText(title,bold: true,maxLines: 2,),
-            CText(subTitle,textColor: Colors.grey[700],textSize: 10,maxLines: 1,margin: EdgeInsetsDirectional.only(top: 5,bottom: 5),),
+            CText(title,bold: true,maxLines: 2,textSize: TextSize.Title,),
+            CText(subTitle,textColor: Colors.grey[700],maxLines: 1,margin: EdgeInsetsDirectional.only(top: 5,bottom: 5),),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    CText("￥",textSize: 8,textColor: Color(0xFFFF6644),bold: true,),
-                    CText("$price",textSize: 13,textColor:  Color(0xFFFF6644),bold: true,),
-                    CText("￥$originalPrice",textSize: 9,textColor: Colors.grey,decoration: TextDecoration.lineThrough,bold: true,margin: EdgeInsetsDirectional.only(start: 3,end: 3),),
+                    CText("￥",textSize: 11,textColor: Color(0xFFFF6644),bold: true,),
+                    CText("$price",textSize: 17,textColor:  Color(0xFFFF6644),bold: true,),
+                    CText("￥$originalPrice",textColor: Colors.grey,decoration: TextDecoration.lineThrough,margin: EdgeInsetsDirectional.only(start: 3,end: 3),),
                     CContainer(
                       margin: EdgeInsetsDirectional.only(start: 3),
                       padding: EdgeInsetsDirectional.only(top: 1,bottom: 1,start: 4,end: 4),
                       borderRadius: 2,
-                      color: Color(0xFFFF6644),
-                      child: CText(discount,textSize: 9,textColor: Colors.white,),
+                      gradient: tagGradient,
+                      child: CText(discount,textSize: 11,textColor: Colors.white,),
                     ),
                   ],
                 ),
                 Row(
                   children: <Widget>[
-                    CText(distance,maxLines: 1,textSize: 9,textColor: Colors.grey[700],margin: EdgeInsetsDirectional.only(end: 10),),
+                    CText(distance,maxLines: 1,textColor: Colors.grey[700],margin: EdgeInsetsDirectional.only(end: 10),),
                     CImage(asset: "images/ic_close_item.png",scale: 1.8,)
                   ],
                 ),
@@ -535,7 +536,7 @@ class DiscountItemWidget3 extends StatelessWidget{
               leftBottomBorderRadius: 0,
               rightTopBorderRadius: 0,
               padding: EdgeInsetsDirectional.only(start: 3,end: 3,top: 2,bottom: 2),
-              child: CText("广告",textColor: Colors.white,textSize: 7,),
+              child: CText("广告",textColor: Colors.white,textSize: 10,),
             )
           ],
         ),
@@ -598,7 +599,7 @@ class DiscountItemWidget2 extends StatelessWidget{
           children: <Widget>[
             CContainer(
               expand: true,
-              child:  CText(title,maxLines: 1,bold: true,),
+              child:  CText(title,maxLines: 1,bold: true,textSize: TextSize.Title,),
             ),
             CImage(asset: "images/ic_close_item.png",scale: 1.8,)
           ],
@@ -609,22 +610,22 @@ class DiscountItemWidget2 extends StatelessWidget{
             CContainer(
               expand: true,
               margin: EdgeInsetsDirectional.only(top: 5,bottom: 5),
-              child: CText(subTitle,maxLines: 1,textSize: 9,textColor: Colors.grey[700]),
+              child: CText(subTitle,maxLines: 1,textColor: Colors.grey[700]),
             ),
-            CText(distance,maxLines: 1,textSize: 9,textColor: Colors.grey[700]),
+            CText(distance,maxLines: 1,textColor: Colors.grey[700]),
           ],
         ),
         Row(
           children: <Widget>[
-            CText("￥",textSize: 8,textColor: Color(0xFFFF6644),bold: true,),
-            CText("$price",textSize: 13,textColor:  Color(0xFFFF6644),bold: true,),
-            CText("￥$originalPrice",textSize: 9,textColor: Colors.grey,decoration: TextDecoration.lineThrough,bold: true,),
+            CText("￥",textSize: 10,textColor: Color(0xFFFF6644),bold: true,),
+            CText("$price",textSize: 17,textColor:  Color(0xFFFF6644),bold: true,),
+            CText("￥$originalPrice",textColor: Colors.grey,decoration: TextDecoration.lineThrough,),
             CContainer(
               margin: EdgeInsetsDirectional.only(start: 3),
               padding: EdgeInsetsDirectional.only(top: 1,bottom: 1,start: 4,end: 4),
               borderRadius: 2,
-              color: Color(0xFFFF6644),
-              child: CText(discount,textSize: 9,textColor: Colors.white,),
+              gradient: tagGradient,
+              child: CText(discount,textSize: 11,textColor: Colors.white,),
             ),
             Row(
               children: getTagWidgets(),
@@ -653,11 +654,12 @@ class DiscountItemWidget2 extends StatelessWidget{
       tagWidgetList.add(
           CContainer(
             margin: EdgeInsetsDirectional.only(start: 3),
+            padding: EdgeInsetsDirectional.only(start: 2,end: 2),
             borderRadius: 2,
-            borderColor: Colors.grey,
+            borderColor: Colors.grey[300],
             borderWidth: 0.5,
             color: Colors.white,
-            child: CText(tag,textSize: 8,textColor: Colors.grey[700],padding: EdgeInsets.all(1),),
+            child: CText(tag,textSize:11,textColor: Colors.grey[700],padding: EdgeInsets.all(1),),
           )
       );
     }
@@ -707,7 +709,7 @@ class DiscountItemWidget extends StatelessWidget{
               child: CText(
                 tag,
                 textColor: Color(0xFFFF4A4A),
-                textSize: 10,
+                textSize: 13,
                 bold: true,
                 imageAsset: "images/ic_arrow_right_discount.png",
                 drawablePadding: 4,
@@ -717,7 +719,7 @@ class DiscountItemWidget extends StatelessWidget{
             CImage(asset: "images/ic_close_item.png",scale: 1.8,)
           ],
         ),
-        CText(title,textSize: 9,textColor: Colors.grey[800],padding: EdgeInsetsDirectional.only(top: 6,bottom: 6),),
+        CText(title,textColor: Colors.grey[800],padding: EdgeInsetsDirectional.only(top: 6,bottom: 6),),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -746,15 +748,16 @@ class DiscountItemWidget extends StatelessWidget{
               children: <Widget>[
                 CContainer(
                   leftBottomBorderRadius: 5,
-                  color: Color(0xFFFF5239),
+                  //color: Color(0xFFFF5239),
+                  gradient: tagGradient,
                   padding: EdgeInsets.all(3),
-                  child: CText(model.price,textSize: 8,textColor: Colors.white,bold: true,),
+                  child: CText(model.price,textSize: 11,textColor: Colors.white,bold: true,),
                 ),
                 CContainer(
                   color: Colors.black,
                   rightTopBorderRadius: 5,
                   padding: EdgeInsets.all(3),
-                  child: CText(model.discount,textSize: 8,textColor: Colors.white,bold: true,),
+                  child: CText(model.discount,textSize: 11,textColor: Colors.white,bold: true,),
                 ),
               ],
             ),
@@ -764,7 +767,6 @@ class DiscountItemWidget extends StatelessWidget{
           width: imageWidth,
           child: CText(
             model.title,
-            textSize: 9,
             textColor: Colors.black,
             bold: true,
             maxLines: 2,
@@ -775,7 +777,6 @@ class DiscountItemWidget extends StatelessWidget{
   }
 
 }
-
 
 ///子功能位分类
 class SubTypeWidget extends StatelessWidget{
@@ -789,7 +790,8 @@ class SubTypeWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    double imageSize = 45;
+    double imageWidth = 49.5;
+    double imageHeight = 38.5;
     double width = (MediaQuery.of(context).size.width - 10 * 2) / 5;
 
     return Container(
@@ -800,14 +802,14 @@ class SubTypeWidget extends StatelessWidget{
           children: <Widget>[
             SizedBox(
               width: width,
-              child: CText(name,imageAsset: asset,textSize: 9,imageWidth: imageSize,imageHeight: imageSize,drawableDirection: DrawableDirection.top,),
+              child: CText(name,imageAsset: asset,imageWidth: imageWidth,imageHeight: imageHeight,drawableDirection: DrawableDirection.top,),
             ),
             CContainer(
-              color: StringUtils.isEmpty(tag) ? Colors.transparent:Colors.red,
+              color: !StringUtils.isEmpty(tag) ? Colors.red:Colors.transparent,
               padding: EdgeInsetsDirectional.only(start: 4,end: 4,top: 1,bottom: 1),
               borderRadius: 20,
               leftBottomBorderRadius: 0,
-              child: CText(tag,textSize: 7.5,textColor: Colors.white,),
+              child: CText(tag,textSize: 10,textColor: Colors.white,),
             ),
           ],
         ),
@@ -838,7 +840,7 @@ class TypeWidget extends StatelessWidget{
           direction: Direction.column,
           children: <Widget>[
             CImage(asset: asset,url: url,width: 58,heiget: 58,),
-            CText(name, margin: EdgeInsets.all(4), textSize: 10,),
+            CText(name, margin: EdgeInsets.all(4),),
           ],
         ),
         /*标签*/
@@ -846,13 +848,23 @@ class TypeWidget extends StatelessWidget{
           padding: EdgeInsetsDirectional.only(start: 4,end: 4,top: 1,bottom: 1),
           color: StringUtils.isEmpty(tag) ? Colors.transparent:Colors.red,
           borderRadius: 10,
-          child: CText(tag,textSize: 7.5,textColor: Colors.white,),
+          child: CText(tag,textSize: 10,textColor: Colors.white,),
         ),
       ],
     );
   }
 
 }
+
+///红色的渐变标签背景
+LinearGradient tagGradient = LinearGradient(
+  begin: Alignment.bottomLeft,
+  end: Alignment.topRight,
+  colors: <Color>[
+    Color.fromARGB(255,255,103,68),
+    Color.fromARGB(255,255,74,53),
+  ],
+);
 
 
 

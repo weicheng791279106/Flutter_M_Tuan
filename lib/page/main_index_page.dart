@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/conts/conts.dart';
+import 'package:m_tuan_flutter/conts/text_size.dart';
 import 'package:m_tuan_flutter/page/discover_page.dart';
 import 'package:m_tuan_flutter/page/home_page.dart';
 import 'package:m_tuan_flutter/page/mine_page.dart';
@@ -43,7 +44,7 @@ class MainIndexPageState extends State<MainIndexPage> with SingleTickerProviderS
     String tabImage4 = controller.index == 3 ? "images/ic_tab_4.png":"images/ic_tab_4_.png";
 
     double imageSize = 27;
-    double tabTextSize = 9;
+    double tabTextSize = TextSize.Normal;
 
     return MaterialApp(
       home: Scaffold(

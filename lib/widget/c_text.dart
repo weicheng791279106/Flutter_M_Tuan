@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:m_tuan_flutter/conts/text_size.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 
@@ -36,7 +37,7 @@ class CText extends StatelessWidget{
   Widget build(BuildContext context) {
     textAlign = textAlign ?? TextAlign.start;
     bold = bold ?? false;
-    textSize = textSize ?? 12;
+    textSize = textSize ?? TextSize.Normal;
     textColor = textColor ?? Colors.black;
 
     drawableDirection = drawableDirection ?? DrawableDirection.right;
@@ -83,7 +84,7 @@ class CText extends StatelessWidget{
   }
 
   Widget getImageWidget(){
-    if(icon != null) return Icon(icon,color: textColor,size: iconSize,);
+    if(icon != null) return Icon(icon,color: textColor,size: iconSize);
     if(imageAsset != null) return CImage(asset: imageAsset,width: imageWidth,heiget: imageHeight,scale: imageScale,);
   }
 

@@ -38,7 +38,8 @@ class CImage extends StatelessWidget{
     leftBottomRadius = leftBottomRadius ?? borderRadius;
     rightTopRadius = rightTopRadius ?? borderRadius;
     rightBottomRadius = rightBottomRadius ?? borderRadius;
-    return ClipRRect(child: getChild(),
+    return ClipRRect(
+      child: getChild(),
       borderRadius:BorderRadius.only(
         topLeft: Radius.circular(leftTopRadius),
         topRight: Radius.circular(rightTopRadius),
