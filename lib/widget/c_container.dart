@@ -23,6 +23,7 @@ class CContainer extends StatelessWidget{
   EdgeInsetsGeometry margin;
   AlignmentGeometry alignment;
   Gradient gradient;
+  BoxShadow boxShadow;
 
   Direction direction;
   List<Widget> children;
@@ -37,7 +38,7 @@ class CContainer extends StatelessWidget{
     this.borderWidth, this.borderRadius, this.leftTopBorderRadius,
     this.rightTopBorderRadius, this.leftBottomBorderRadius,
     this.rightBottomBorderRadius, this.padding, this.margin, this.alignment,
-    this.direction,this.children,this.gradient,
+    this.direction,this.children,this.gradient,this.boxShadow,
     this.mainAxisAlignment,this.mainAxisSize,this.crossAxisAlignment,
     this.onTap, this.onLongPress});
 
@@ -79,6 +80,7 @@ class CContainer extends StatelessWidget{
             color: gradient != null ? null:color, /*有渐变属性的话color要传null*/
             gradient: gradient,
             border: new Border.all(color: borderColor,width: borderWidth),
+            boxShadow: boxShadow == null ? null:[boxShadow],
             borderRadius: new BorderRadius.only(
                 topLeft: new Radius.circular(leftTopBorderRadius),
                 topRight: new Radius.circular(rightTopBorderRadius),

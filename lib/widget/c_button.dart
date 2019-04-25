@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_text.dart';
 
 class CButton extends StatelessWidget{
@@ -18,12 +19,13 @@ class CButton extends StatelessWidget{
   double leftBottomBorderRadius;
   double rightBottomBorderRadius;
   EdgeInsetsGeometry padding;
+  EdgeInsetsGeometry margin;
   VoidCallback onPressed;
 
   CButton(this.text, {this.textColor, this.textSize, this.color, this.bold,
       this.expand, this.flex, this.borderColor, this.borderWidth,
       this.borderRadius, this.leftTopBorderRadius, this.rightTopBorderRadius,
-      this.leftBottomBorderRadius, this.rightBottomBorderRadius, this.padding,
+      this.leftBottomBorderRadius, this.rightBottomBorderRadius, this.padding,this.margin,
       this.onPressed});
 
   @override
@@ -31,8 +33,12 @@ class CButton extends StatelessWidget{
     expand = expand ?? false;
     flex = flex ?? 1;
 
-    if(expand) return new Expanded(child: getContainerWidget(),flex: flex);
-    return getContainerWidget();
+    return CContainer(
+      expand: expand,
+      flex: flex,
+      margin: margin,
+      child: getContainerWidget(),
+    );
   }
 
   Widget getContainerWidget(){

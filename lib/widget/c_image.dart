@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:m_tuan_flutter/widget/c_container.dart';
 
 class CImage extends StatelessWidget{
 
@@ -14,6 +15,8 @@ class CImage extends StatelessWidget{
   double leftBottomRadius;
   double rightTopRadius;
   double rightBottomRadius;
+  double borderWidth;
+  Color borderColor;
 
 
   CImage({this.url, this.asset, this.heiget, this.width,this.fit = BoxFit.fill,
@@ -22,15 +25,17 @@ class CImage extends StatelessWidget{
     this.leftBottomRadius,
     this.rightTopRadius,
     this.rightBottomRadius,
+    this.borderWidth = 0,
+    this.borderColor,
     this.scale,
   });
 
   @override
   Widget build(BuildContext context) {
-    if(borderRadius != null || leftTopRadius != null || leftBottomRadius != null || rightTopRadius != null || rightBottomRadius > 0)
-      return SizedBox(width: width,height: heiget,child: borderWidget());
+    borderColor = borderWidth > 0 && borderColor == null ? Colors.grey[300]:Colors.transparent;
 
-    return SizedBox(width: width,height: heiget,child: getChild());
+    return CContainer(width: width,height: heiget,child: borderWidget(),borderWidth: borderWidth,borderColor: borderColor,
+        borderRadius: borderRadius,leftBottomBorderRadius: leftBottomRadius,leftTopBorderRadius: leftTopRadius,rightBottomBorderRadius: rightBottomRadius,rightTopBorderRadius: rightTopRadius,);
   }
 
   Widget borderWidget(){

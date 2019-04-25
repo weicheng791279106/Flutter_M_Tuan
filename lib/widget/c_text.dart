@@ -13,6 +13,7 @@ class CText extends StatelessWidget{
   TextAlign textAlign;
   int maxLines;
   Color textColor;
+  Color color;
   double textSize;
   bool bold;
   TextDecoration decoration;
@@ -29,7 +30,7 @@ class CText extends StatelessWidget{
   double imageScale;
 
 
-  CText(this.s, {this.textAlign, this.maxLines, this.textColor, this.textSize,
+  CText(this.s, {this.textAlign, this.maxLines, this.textColor,this.color, this.textSize,
       this.bold,this.margin,this.padding,this.decoration,
       this.icon,this.imageAsset,this.drawableDirection,this.drawablePadding,this.imageWidth,this.imageHeight,this.iconSize,this.imageScale});
 
@@ -44,12 +45,13 @@ class CText extends StatelessWidget{
     drawablePadding = drawablePadding ?? 0;
 
     /*没有特殊要求*/
-    if(margin == null && padding == null && icon == null && imageAsset == null)
+    if(margin == null && padding == null && icon == null && imageAsset == null && color == null)
       return getContainerWidget();
 
     /*没有附带图标要求，但是需要padding或者margin*/
     if(icon == null && imageAsset == null)
       return Container(
+        color: color,
         margin: margin,
         padding: padding,
         child: getContainerWidget(),
@@ -57,6 +59,7 @@ class CText extends StatelessWidget{
 
     /*需要附带图标要求*/
     return CContainer(
+      color: color,
       margin: margin,
       padding: padding,
       mainAxisSize: MainAxisSize.min,
