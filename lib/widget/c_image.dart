@@ -27,7 +27,7 @@ class CImage extends StatelessWidget{
     this.rightBottomRadius,
     this.borderWidth = 0,
     this.borderColor,
-    this.scale,
+    this.scale = 1.0,
   });
 
   @override

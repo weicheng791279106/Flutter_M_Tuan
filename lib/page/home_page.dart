@@ -1,8 +1,11 @@
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/conts/conts.dart';
 import 'package:m_tuan_flutter/conts/text_size.dart';
+import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
+import 'package:m_tuan_flutter/util/http.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:m_tuan_flutter/widget/c_circle_avatar.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
@@ -23,6 +26,29 @@ class HomePageState extends State<HomePage> {
 
   /**Banner宽高比*/
   final double BANNER_RATIO = 750 / 200;
+
+
+  HomeDataResp homeDataResp;
+
+
+  ///请求主页数据
+  Future requestHomeData(BuildContext context) async {
+    HomeDataResp response = new HomeDataResp(await Http.post(
+        context,
+        "http://10.0.4.145:8080/home/homeData",
+        new FormData.from({
+        })));
+    if (response.code != Http.SUCCESS) return;
+    setState(() {
+      homeDataResp = response;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    requestHomeData(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +93,17 @@ class HomePageState extends State<HomePage> {
           ),
           CContainer(
             expand: true,
+            gradient: LinearGradient(
+              colors: [
+                Colors.white,
+                CColors.bgDefault,
+                CColors.bgDefault,
+                CColors.bgDefault,
+                CColors.bgDefault,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
             child: RefreshIndicator(
               child: ListView.builder(
                 itemBuilder: getItemWidget,
@@ -75,7 +112,9 @@ class HomePageState extends State<HomePage> {
                 physics: AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsetsDirectional.only(bottom: 15),
               ),
-              onRefresh: (){},
+              onRefresh: (){
+                requestHomeData(context);
+              },
             ),
           ),
         ],
@@ -87,10 +126,10 @@ class HomePageState extends State<HomePage> {
     switch(index){
 
       case 0:
-        return typeWidgets();
+        return funcWidgets(homeDataResp != null ? homeDataResp.mainFuncList:null);
 
       case 1:
-        return subTypeWidgets();
+        return subFuncWidgets(homeDataResp != null ? homeDataResp.subFuncList:null);
 
       case 2:
         return bannerView();
@@ -183,50 +222,31 @@ class HomePageState extends State<HomePage> {
   }
 
 
-  Widget typeWidgets(){
-    return CContainer(
-      margin: EdgeInsetsDirectional.only(start: 15,end: 15,top: 15),
-      direction: Direction.row,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        TypeWidget(asset: "images/ic_type_1.png",tag: "1元起",name: "美食"),
-        TypeWidget(asset: "images/ic_type_2.png",tag: "",name: "电影/演出"),
-        TypeWidget(asset: "images/ic_type_3.png",tag: "",name: "酒店住宿"),
-        TypeWidget(asset: "images/ic_type_4.png",tag: "养生",name: "休闲娱乐"),
-        TypeWidget(asset: "images/ic_type_5.png",tag: "",name: "外卖"),
-      ],
+  Widget funcWidgets(List<Func> funcList){
+    List<Widget> widgetList = List();
+    for(Func model in funcList) widgetList.add(TypeWidget(url: model.imageUrl,tag: model.tag,name: model.name));
+    return GridView.count(
+      padding: EdgeInsets.only(left: 15, right: 15,top: 15),
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      crossAxisCount: 5,
+      mainAxisSpacing: 17,
+      childAspectRatio: 0.75,
+      children: widgetList,
     );
   }
 
-  Widget subTypeWidgets(){
-    return CContainer(
-      direction: Direction.column,
-      children: <Widget>[
-        CContainer(
-          direction: Direction.row,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          margin: EdgeInsetsDirectional.only(start: 10,end: 10,top: 15),
-          children: <Widget>[
-            SubTypeWidget(name: "跑腿代购",asset: "images/ic_sub_type_1.png"),
-            SubTypeWidget(name: "学习培训",asset: "images/ic_sub_type_2.png"),
-            SubTypeWidget(name: "周边游/旅游",asset: "images/ic_sub_type_3.png"),
-            SubTypeWidget(name: "结婚/摄影",asset: "images/ic_sub_type_4.png"),
-            SubTypeWidget(name: "丽人/美发",asset: "images/ic_sub_type_5.png"),
-          ],
-        ),
-        CContainer(
-          direction: Direction.row,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          margin: EdgeInsetsDirectional.only(start: 10,end: 10,top: 8),
-          children: <Widget>[
-            SubTypeWidget(name: "超市/生鲜",asset: "images/ic_sub_type_6.png"),
-            SubTypeWidget(name: "景点/门票",asset: "images/ic_sub_type_7.png"),
-            SubTypeWidget(name: "健身/游泳",asset: "images/ic_sub_type_8.png"),
-            SubTypeWidget(name: "签到领现金",asset: "images/ic_sub_type_9.png",tag: "神券",),
-            SubTypeWidget(name: "更多",asset: "images/ic_sub_type_10.png"),
-          ],
-        ),
-      ],
+  Widget subFuncWidgets(List<Func> funcList){
+    List<Widget> widgetList = List();
+    for(Func model in funcList) widgetList.add(SubTypeWidget(name: model.name,url: model.imageUrl,tag: model.tag,));
+    return GridView.count(
+      padding: EdgeInsets.only(left: 15, right: 15,top: 15),
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      crossAxisCount: 5,
+      mainAxisSpacing: 0,
+      childAspectRatio: 1.0,
+      children: widgetList,
     );
   }
 
@@ -790,19 +810,20 @@ class SubTypeWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    double imageWidth = 49.5;
-    double imageHeight = 38.5;
-    double width = (MediaQuery.of(context).size.width - 10 * 2) / 5;
+    double imageWidth = 45.5;
+    double imageHeight = 34.5;
 
     return Container(
+      alignment: Alignment.center,
       child: SizedBox(
-        width: width,
         child: Stack(
           alignment: Alignment.topRight,
           children: <Widget>[
-            SizedBox(
-              width: width,
-              child: CText(name,imageAsset: asset,imageWidth: imageWidth,imageHeight: imageHeight,drawableDirection: DrawableDirection.top,),
+            Column(
+              children: <Widget>[
+                CImage(url: url,width: imageWidth,heiget: imageHeight,),
+                CText(name,textSize: 12.5,textColor: CColors.textTitle,),
+              ],
             ),
             CContainer(
               color: !StringUtils.isEmpty(tag) ? Colors.red:Colors.transparent,
@@ -819,7 +840,6 @@ class SubTypeWidget extends StatelessWidget{
 
 }
 
-
 ///主功能位分类
 class TypeWidget extends StatelessWidget{
 
@@ -832,25 +852,28 @@ class TypeWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.topRight,
-      children: <Widget>[
-        CContainer(
-          margin: EdgeInsetsDirectional.only(top: 2),
-          direction: Direction.column,
-          children: <Widget>[
-            CImage(asset: asset,url: url,width: 58,heiget: 58,),
-            CText(name, margin: EdgeInsets.all(4),),
-          ],
-        ),
-        /*标签*/
-        CContainer(
-          padding: EdgeInsetsDirectional.only(start: 4,end: 4,top: 1,bottom: 1),
-          color: StringUtils.isEmpty(tag) ? Colors.transparent:Colors.red,
-          borderRadius: 10,
-          child: CText(tag,textSize: 10,textColor: Colors.white,),
-        ),
-      ],
+    return Container(
+      alignment: Alignment.center,
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: <Widget>[
+          CContainer(
+            margin: EdgeInsetsDirectional.only(top: 2),
+            direction: Direction.column,
+            children: <Widget>[
+              CImage(asset: asset,url: url,width: 58,heiget: 58,),
+              CText(name, margin: EdgeInsets.all(4),textSize: 12.5,textColor: CColors.textTitle,),
+            ],
+          ),
+          /*标签*/
+          CContainer(
+            padding: EdgeInsetsDirectional.only(start: 4,end: 4,top: 1,bottom: 1),
+            color: StringUtils.isEmpty(tag) ? Colors.transparent:Colors.red,
+            borderRadius: 10,
+            child: CText(tag,textSize: 10,textColor: Colors.white,),
+          ),
+        ],
+      ),
     );
   }
 
