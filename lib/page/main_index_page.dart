@@ -9,6 +9,7 @@ import 'package:m_tuan_flutter/page/order_page.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/eachtab.dart';
+import 'package:m_tuan_flutter/widget/scale_text_widget.dart';
 
 class MainIndexPage extends StatefulWidget{
 
@@ -47,6 +48,13 @@ class MainIndexPageState extends State<MainIndexPage> with SingleTickerProviderS
     double tabTextSize = TextSize.Normal;
 
     return MaterialApp(
+      builder: (ctx, w) {
+        /*设置字体最大缩放比*/
+        return MaxScaleTextWidget(
+          max: 1.0,
+          child: w,
+        );
+      },
       home: Scaffold(
         body: new TabBarView(
             controller: controller,
