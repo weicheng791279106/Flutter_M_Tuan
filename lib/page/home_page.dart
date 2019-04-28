@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
@@ -28,6 +30,8 @@ class HomePageState extends State<HomePage> {
   final double BANNER_RATIO = 750 / 200;
 
 
+  ScrollController scrollController;
+
   HomeDataResp homeDataResp;
 
 
@@ -38,7 +42,7 @@ class HomePageState extends State<HomePage> {
         "http://10.0.4.145:8080/home/homeData",
         new FormData.from({
         })));
-    if (response.code != Http.SUCCESS) return;
+    if (response.code != Http.SUCCESS) return ;
     setState(() {
       homeDataResp = response;
     });
@@ -47,7 +51,14 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    scrollController = new ScrollController();
     requestHomeData(context);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
   }
 
   @override
@@ -108,13 +119,11 @@ class HomePageState extends State<HomePage> {
               child: ListView.builder(
                 itemBuilder: getItemWidget,
                 itemCount: 8,
-                //controller: scrollController,
+                controller: scrollController,
                 physics: AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsetsDirectional.only(bottom: 15),
               ),
-              onRefresh: (){
-                requestHomeData(context);
-              },
+              onRefresh:() => requestHomeData(context),
             ),
           ),
         ],
@@ -223,6 +232,7 @@ class HomePageState extends State<HomePage> {
 
 
   Widget funcWidgets(List<Func> funcList){
+    if(funcList == null) return null;
     List<Widget> widgetList = List();
     for(Func model in funcList) widgetList.add(TypeWidget(url: model.imageUrl,tag: model.tag,name: model.name));
     return GridView.count(
@@ -237,6 +247,7 @@ class HomePageState extends State<HomePage> {
   }
 
   Widget subFuncWidgets(List<Func> funcList){
+    if(funcList == null) return null;
     List<Widget> widgetList = List();
     for(Func model in funcList) widgetList.add(SubTypeWidget(name: model.name,url: model.imageUrl,tag: model.tag,));
     return GridView.count(
