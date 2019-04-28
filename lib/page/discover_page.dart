@@ -11,7 +11,10 @@ class DiscoverPage extends StatefulWidget{
 
 }
 
-class DiscoverPageState extends State<DiscoverPage> {
+class DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClientMixin{
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {

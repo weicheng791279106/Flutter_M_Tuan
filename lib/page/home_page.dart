@@ -24,7 +24,7 @@ class HomePage extends StatefulWidget{
 
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
 
   /**Banner宽高比*/
   final double BANNER_RATIO = 750 / 200;
@@ -33,6 +33,9 @@ class HomePageState extends State<HomePage> {
   ScrollController scrollController;
 
   HomeDataResp homeDataResp;
+
+  @override
+  bool get wantKeepAlive => true;
 
 
   ///请求主页数据

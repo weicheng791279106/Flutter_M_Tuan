@@ -16,11 +16,14 @@ class MinePage extends StatefulWidget{
 
 }
 
-class MinePageState extends State<MinePage> {
+class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
 
   ScrollController controller = new ScrollController();
 
   double titleAlpha = 0.0;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {

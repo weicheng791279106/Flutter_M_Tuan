@@ -17,7 +17,10 @@ class OrderPage extends StatefulWidget{
 
 }
 
-class OrderPageState extends State<OrderPage> {
+class OrderPageState extends State<OrderPage> with AutomaticKeepAliveClientMixin{
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
