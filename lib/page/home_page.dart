@@ -121,7 +121,7 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
             child: RefreshIndicator(
               child: ListView.builder(
                 itemBuilder: getItemWidget,
-                itemCount: 8,
+                itemCount: 5 + (homeDataResp != null && homeDataResp.discountList != null ? homeDataResp.discountList.length:0),
                 controller: scrollController,
                 physics: AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsetsDirectional.only(bottom: 15),
@@ -135,47 +135,60 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   }
 
   Widget getItemWidget(BuildContext context,int index){
+    if(homeDataResp == null) return null;
     switch(index){
 
       case 0:
-        return funcWidgets(homeDataResp != null ? homeDataResp.mainFuncList:null);
+        return funcWidgets(homeDataResp.mainFuncList);
 
       case 1:
-        return subFuncWidgets(homeDataResp != null ? homeDataResp.subFuncList:null);
+        return subFuncWidgets(homeDataResp.subFuncList);
 
       case 2:
-        return bannerView();
-
-      case 3:
-        return DiscountItemWidget();
-
-      case 4:
-        return DiscountItemWidget2();
-
-      case 5:
-        return DiscountItemWidget3();
-
-      case 6:
-        return MovieWidget();
-
-      case 7:
-        return TravelWidget();
+        return bannerView(homeDataResp.bannerList);
 
     }
+
+    int discountCount = homeDataResp.discountList != null ? homeDataResp.discountList.length:0;
+    int movieIndex = 2 + discountCount + 1;
+    int hotelIndex = 2 + discountCount + 2;
+
+    if(index - 3 < discountCount){
+      DiscountItem discountItem = homeDataResp.discountList[index-3];
+      switch(discountItem.type){
+
+        case 1:
+          return DiscountItemWidget(discountItem.title,discountItem.discountList);
+
+        case 2:
+          return DiscountItemWidget2(discountItem.discountList[0]);
+
+        case 3:
+          return DiscountItemWidget3(discountItem.discountList[0]);
+
+      }
+    }
+
+    if(index == movieIndex)
+      return homeDataResp.movieList != null ? MovieWidget(homeDataResp.movieList):null;
+
+    if(index == hotelIndex)
+      return homeDataResp.hotelList != null ? HotelWidget(homeDataResp.hotelList):null;
+
   }
 
 
 
-  Widget bannerView(){
+  Widget bannerView(List<HomeBanner> bannerList){
+    if(bannerList == null) return null;
+
     double screenWidth = MediaQuery.of(context).size.width;
     double bannerHeight = (screenWidth - 15 * 2) / BANNER_RATIO;
     double bannerCircular = 10;
 
     List<Widget> widgets = new List();
-    widgets.add(CImage(asset: "images/banner_1.png",heiget: bannerHeight,fit: BoxFit.fill,borderRadius: bannerCircular));
-    widgets.add(CImage(asset: "images/banner_2.png",heiget: bannerHeight,fit: BoxFit.fill,borderRadius: bannerCircular));
-    widgets.add(CImage(asset: "images/banner_3.png",heiget: bannerHeight,fit: BoxFit.fill,borderRadius: bannerCircular));
-    widgets.add(CImage(asset: "images/banner_4.png",heiget: bannerHeight,fit: BoxFit.fill,borderRadius: bannerCircular));
+    for(HomeBanner model in bannerList)
+      widgets.add(CImage(url: model.imageUrl,heiget: bannerHeight,fit: BoxFit.fill,borderRadius: bannerCircular));
 
     return Container(
       margin: EdgeInsetsDirectional.only(start: 15,end: 15,top: 18),
@@ -268,47 +281,18 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
 
 
 
-class TravelWidget extends StatelessWidget{
+class HotelWidget extends StatelessWidget{
 
   final double IMAGE_RATIO = 270 / 200;
 
-  String bgImageUrl;
-  String title;
+  String bgImageUrl = "images/travel_bg.png";
+  String title = "抢酒店5折神劵>";
+  List<Hotel> hotelList;
 
-  String itemTitle1;
-  String itemSubTitle1;
-  String itemPrice1;
-  String itemImage1;
-  String itemTitle2;
-  String itemSubTitle2;
-  String itemPrice2;
-  String itemImage2;
-  String itemTitle3;
-  String itemSubTitle3;
-  String itemPrice3;
-  String itemImage3;
+  HotelWidget(this.hotelList);
 
   @override
   Widget build(BuildContext context) {
-
-    title = "抢酒店5折神劵>";
-    bgImageUrl = "images/travel_bg.png";
-
-    itemTitle1 = "曼谷拉查丹利中央酒店";
-    itemSubTitle1 = "五一出行特价";
-    itemPrice1 = "650.71";
-    itemImage1 = "images/travel_1.png";
-
-    itemTitle2 = "曼谷水门伯克利酒店";
-    itemSubTitle2 = "五一出行特价";
-    itemPrice2 = "408.11";
-    itemImage2 = "images/travel_2.jpg";
-
-    itemTitle3 = "彩虹云霄酒店";
-    itemSubTitle3 = "五一出行特价";
-    itemPrice3 = "392.15";
-    itemImage3 = "images/travel_3.jpg";
-
     return Container(
       margin: EdgeInsetsDirectional.only(start: 15,end: 15,top: 10),
       child: Stack(
@@ -330,9 +314,9 @@ class TravelWidget extends StatelessWidget{
                 direction: Direction.row,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  itemWidget(context, itemImage1, itemTitle1, itemSubTitle1, itemPrice1),
-                  itemWidget(context, itemImage2, itemTitle2, itemSubTitle2, itemPrice2),
-                  itemWidget(context, itemImage3, itemTitle3, itemSubTitle3, itemPrice3),
+                  itemWidget(context, hotelList[0].imageUrl, hotelList[0].name, hotelList[0].tag, hotelList[0].price),
+                  itemWidget(context, hotelList[1].imageUrl, hotelList[1].name, hotelList[1].tag, hotelList[1].price),
+                  itemWidget(context, hotelList[2].imageUrl, hotelList[2].name, hotelList[2].tag, hotelList[2].price),
                 ],
               )
             ],
@@ -342,7 +326,7 @@ class TravelWidget extends StatelessWidget{
     );
   }
 
-  Widget itemWidget(BuildContext context,String image1,String title,String subTitle,String price){
+  Widget itemWidget(BuildContext context,String imageUrl,String title,String subTitle,String price){
     double screenWidth = MediaQuery.of(context).size.width;
     double itemWidth = (screenWidth - 15*2 - 10*2 - 5*2) / 3;
     return CContainer(
@@ -355,7 +339,7 @@ class TravelWidget extends StatelessWidget{
         Stack(
           alignment: Alignment.bottomLeft,
           children: <Widget>[
-            CImage(asset: image1,borderRadius: 2,width: itemWidth - 5*2,heiget: (itemWidth - 5*2) / IMAGE_RATIO,),
+            CImage(url: imageUrl,borderRadius: 2,width: itemWidth - 5*2,heiget: (itemWidth - 5*2) / IMAGE_RATIO,),
             CContainer(
               color: Color(0x99000000),
               leftBottomBorderRadius: 2,
@@ -397,30 +381,12 @@ class MovieWidget extends StatelessWidget{
 
   final double IMAGE_RATIO = 300 / 420;
 
-  String imageUrl1;
-  String imageUrl2;
-  String imageUrl3;
-  String movieTitle1;
-  String movieTitle2;
-  String movieTitle3;
-  String movieSubTitle1;
-  String movieSubTitle2;
-  String movieSubTitle3;
+  List<Movie> movieList;
+
+  MovieWidget(this.movieList);
 
   @override
   Widget build(BuildContext context) {
-
-    imageUrl1 = "images/movie_3.png";
-    movieTitle1 = "反贪风暴4";
-    movieSubTitle1 = "9.1分";
-    imageUrl2 = "images/movie_1.png";
-    movieTitle2 = "调音师";
-    movieSubTitle2 = "9.2分";
-    imageUrl3 = "images/movie_2.png";
-    movieTitle3 = "复仇者联盟4：终极之战";
-    movieSubTitle3 = "164.4万人想看";
-
-
     return CContainer(
       color: Colors.white,
       margin: EdgeInsetsDirectional.only(start: 15,end: 15,top: 10),
@@ -440,9 +406,9 @@ class MovieWidget extends StatelessWidget{
           direction: Direction.row,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            imageWidget(context, imageUrl1, movieTitle1, movieSubTitle1),
-            imageWidget(context, imageUrl2, movieTitle2, movieSubTitle2),
-            imageWidget(context, imageUrl3, movieTitle3, movieSubTitle3),
+            imageWidget(context, movieList[0].imageUrl, movieList[0].title, movieList[0].score),
+            imageWidget(context, movieList[1].imageUrl, movieList[1].title, movieList[1].score),
+            imageWidget(context, movieList[2].imageUrl, movieList[2].title, movieList[2].score),
           ],
         ),
       ],
@@ -460,7 +426,7 @@ class MovieWidget extends StatelessWidget{
           Stack(
             alignment: Alignment.bottomCenter,
             children: <Widget>[
-              CImage(asset: imageUrl,borderRadius: 5,width: imageWidth,heiget: imageWidth / IMAGE_RATIO,),
+              CImage(url: imageUrl,borderRadius: 5,width: imageWidth,heiget: imageWidth / IMAGE_RATIO,),
               CContainer(
                 width: imageWidth,
                 leftBottomBorderRadius: 5,
@@ -490,34 +456,16 @@ class MovieWidget extends StatelessWidget{
 
 class DiscountItemWidget3 extends StatelessWidget{
 
-  String title;
-  String subTitle;
-  String distance;
-  String price;
-  String originalPrice;
-  String discount;
-  String imageUrl;
+  Discount model;
 
   final double IMAGE_WIDTH = 110;
   final double IMAGE_RATIO = 300 / 250;
 
 
-  DiscountItemWidget3({this.title, this.subTitle, this.distance, this.price,
-      this.originalPrice, this.discount, this.imageUrl});
+  DiscountItemWidget3(this.model,);
 
   @override
   Widget build(BuildContext context) {
-
-    title = "Dream salon梦氏沙龙 【精致剪发】 ";
-    subTitle = "仅售68元，价值196元【精致剪发】 资深设计师为你专属定制个性发型";
-    distance = "6.8km";
-    price = "68";
-    originalPrice = "196";
-    discount = "3.5折";
-    imageUrl = "images/discount_7.png";
-
-
-
     return CContainer(
       color: Colors.white,
       margin: EdgeInsetsDirectional.only(start: 15,end: 15,top: 10),
@@ -530,28 +478,28 @@ class DiscountItemWidget3 extends StatelessWidget{
           expand: true,
           direction: Direction.column,
           children: <Widget>[
-            CText(title,bold: true,maxLines: 2,textSize: TextSize.Title,),
-            CText(subTitle,textColor: Colors.grey[700],maxLines: 1,margin: EdgeInsetsDirectional.only(top: 5,bottom: 5),),
+            CText(model.title,bold: true,maxLines: 2,textSize: TextSize.Title,),
+            CText(model.desc,textColor: Colors.grey[700],maxLines: 1,margin: EdgeInsetsDirectional.only(top: 5,bottom: 5),),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Row(
                   children: <Widget>[
                     CText("￥",textSize: 11,textColor: Color(0xFFFF6644),bold: true,),
-                    CText("$price",textSize: 17,textColor:  Color(0xFFFF6644),bold: true,),
-                    CText("￥$originalPrice",textColor: Colors.grey,decoration: TextDecoration.lineThrough,margin: EdgeInsetsDirectional.only(start: 3,end: 3),),
+                    CText("${model.price}",textSize: 17,textColor:  Color(0xFFFF6644),bold: true,),
+                    CText("￥${model.originalPrice}",textColor: Colors.grey,decoration: TextDecoration.lineThrough,margin: EdgeInsetsDirectional.only(start: 3,end: 3),),
                     CContainer(
                       margin: EdgeInsetsDirectional.only(start: 3),
                       padding: EdgeInsetsDirectional.only(top: 1,bottom: 1,start: 4,end: 4),
                       borderRadius: 2,
                       gradient: tagGradient,
-                      child: CText(discount,textSize: 11,textColor: Colors.white,),
+                      child: CText(model.discount,textSize: 11,textColor: Colors.white,),
                     ),
                   ],
                 ),
                 Row(
                   children: <Widget>[
-                    CText(distance,maxLines: 1,textColor: Colors.grey[700],margin: EdgeInsetsDirectional.only(end: 10),),
+                    CText(model.distance,maxLines: 1,textColor: Colors.grey[700],margin: EdgeInsetsDirectional.only(end: 10),),
                     CImage(asset: "images/ic_close_item.png",scale: 1.8,)
                   ],
                 ),
@@ -562,7 +510,7 @@ class DiscountItemWidget3 extends StatelessWidget{
         Stack(
           alignment: Alignment.bottomRight,
           children: <Widget>[
-            CImage(asset: imageUrl,width: IMAGE_WIDTH,heiget: IMAGE_WIDTH / IMAGE_RATIO,borderRadius: 5,),
+            CImage(url: model.imageList[0],width: IMAGE_WIDTH,heiget: IMAGE_WIDTH / IMAGE_RATIO,borderRadius: 5,),
             CContainer(
               color: Color(0x33000000),
               borderRadius: 5,
@@ -584,39 +532,12 @@ class DiscountItemWidget3 extends StatelessWidget{
 ///折扣Item，第二种类型
 class DiscountItemWidget2 extends StatelessWidget{
 
-  String title;
-  String subTitle;
-  String distance;
-  String price;
-  String originalPrice;
-  String discount;
-  List<String> tagList;
-  List<String> imageUrlList;
+  Discount model;
 
-
-  DiscountItemWidget2({this.title, this.subTitle, this.distance, this.price,
-      this.originalPrice, this.discount, this.tagList, this.imageUrlList});
+  DiscountItemWidget2(this.model);
 
   @override
   Widget build(BuildContext context) {
-
-
-    title = "Sala hair solon (宝安中心店) (限时抢购)";
-    subTitle = "仅售19元，价值298元（限时抢购）总监洗剪+造型，特价优惠等你来";
-    distance = "<500m";
-    price = "19";
-    originalPrice = "298";
-    discount = "9.7折";
-    tagList = ["销量火爆"];
-    imageUrlList = ["images/discount_4.png","images/discount_5.png","images/discount_6.png",];
-
-
-
-
-
-
-
-
     double screenWidth = MediaQuery.of(context).size.width;
     double imageWidth = (screenWidth - (15 + 10) * 2) / 3 - 4 /*间隙，需要减掉一点*/;
     double imageHeight = imageWidth * 250 / 300;
@@ -633,7 +554,7 @@ class DiscountItemWidget2 extends StatelessWidget{
           children: <Widget>[
             CContainer(
               expand: true,
-              child:  CText(title,maxLines: 1,bold: true,textSize: TextSize.Title,),
+              child:  CText(model.title,maxLines: 1,bold: true,textSize: TextSize.Title,),
             ),
             CImage(asset: "images/ic_close_item.png",scale: 1.8,)
           ],
@@ -644,25 +565,25 @@ class DiscountItemWidget2 extends StatelessWidget{
             CContainer(
               expand: true,
               margin: EdgeInsetsDirectional.only(top: 5,bottom: 5),
-              child: CText(subTitle,maxLines: 1,textColor: Colors.grey[700]),
+              child: CText(model.desc,maxLines: 1,textColor: Colors.grey[700]),
             ),
-            CText(distance,maxLines: 1,textColor: Colors.grey[700]),
+            CText(model.distance,maxLines: 1,textColor: Colors.grey[700]),
           ],
         ),
         Row(
           children: <Widget>[
             CText("￥",textSize: 10,textColor: Color(0xFFFF6644),bold: true,),
-            CText("$price",textSize: 17,textColor:  Color(0xFFFF6644),bold: true,),
-            CText("￥$originalPrice",textColor: Colors.grey,decoration: TextDecoration.lineThrough,),
+            CText("${model.price}",textSize: 17,textColor:  Color(0xFFFF6644),bold: true,),
+            CText("￥${model.originalPrice}",textColor: Colors.grey,decoration: TextDecoration.lineThrough,),
             CContainer(
               margin: EdgeInsetsDirectional.only(start: 3),
               padding: EdgeInsetsDirectional.only(top: 1,bottom: 1,start: 4,end: 4),
               borderRadius: 2,
               gradient: tagGradient,
-              child: CText(discount,textSize: 11,textColor: Colors.white,),
+              child: CText(model.discount,textSize: 11,textColor: Colors.white,),
             ),
             Row(
-              children: getTagWidgets(),
+              children: getTagWidgets([model.tag]),
             ),
           ],
         ),
@@ -672,16 +593,16 @@ class DiscountItemWidget2 extends StatelessWidget{
           direction: Direction.row,
           margin: EdgeInsetsDirectional.only(top: 10),
           children: <Widget>[
-            CImage(asset:imageUrlList[0],borderRadius: 5,width: imageWidth,heiget: imageHeight,fit: BoxFit.cover,),
-            CImage(asset:imageUrlList[1],borderRadius: 5,width: imageWidth,heiget: imageHeight,fit: BoxFit.cover,),
-            CImage(asset:imageUrlList[2],borderRadius: 5,width: imageWidth,heiget: imageHeight,fit: BoxFit.cover,),
+            CImage(url:model.imageList[0],borderRadius: 5,width: imageWidth,heiget: imageHeight,fit: BoxFit.cover,),
+            CImage(url:model.imageList[1],borderRadius: 5,width: imageWidth,heiget: imageHeight,fit: BoxFit.cover,),
+            CImage(url:model.imageList[2],borderRadius: 5,width: imageWidth,heiget: imageHeight,fit: BoxFit.cover,),
           ],
         ),
       ],
     );
   }
 
-  List<Widget> getTagWidgets(){
+  List<Widget> getTagWidgets(List<String> tagList){
     List<Widget> tagWidgetList = new List();
     if(tagList == null) return tagWidgetList;
     for (var tag in tagList) {
@@ -706,23 +627,14 @@ class DiscountItemWidget2 extends StatelessWidget{
 ///折扣Item
 class DiscountItemWidget extends StatelessWidget{
 
-  String tag;
+  String tag = "狠优惠";
   String title;
-  List<DiscountModel> discountModelList;
+  List<Discount> discountModelList;
 
-  DiscountItemWidget({this.tag, this.title, this.discountModelList});
+  DiscountItemWidget(this.title, this.discountModelList);
 
   @override
   Widget build(BuildContext context) {
-
-    tag = "狠优惠";
-    title = "折扣商品任你选，好物不间断";
-    discountModelList = [
-      DiscountModel("images/discount_1.png","平安金融中心云际观光成人票","￥180","5.3折"),
-      DiscountModel("images/discount_2.png","大蜀火锅","￥100","5折"),
-      DiscountModel("images/discount_3.png","同仁四季","￥128","9折")
-    ];
-
     return CContainer(
       margin: EdgeInsetsDirectional.only(start: 15,end: 15,top: 10),
       padding: EdgeInsets.all(10.0),
@@ -767,7 +679,7 @@ class DiscountItemWidget extends StatelessWidget{
     );
   }
 
-  Widget itemWidget(BuildContext context,DiscountModel model){
+  Widget itemWidget(BuildContext context,Discount model){
     double screenWidth = MediaQuery.of(context).size.width;
     double imageWidth = (screenWidth - (15 + 10) * 2) / 3 - 4 /*间隙，需要减掉一点*/;
     double imageHeight = imageWidth * 250 / 300;
@@ -777,7 +689,7 @@ class DiscountItemWidget extends StatelessWidget{
         Stack(
           alignment: Alignment.bottomLeft,
           children: <Widget>[
-            CImage(asset:model.imageUrl,borderRadius: 5,width: imageWidth,heiget: imageHeight,fit: BoxFit.cover,),
+            CImage(url:model.imageList[0],borderRadius: 5,width: imageWidth,heiget: imageHeight,fit: BoxFit.cover,),
             Row(
               children: <Widget>[
                 CContainer(
@@ -785,7 +697,7 @@ class DiscountItemWidget extends StatelessWidget{
                   //color: Color(0xFFFF5239),
                   gradient: tagGradient,
                   padding: EdgeInsets.all(3),
-                  child: CText(model.price,textSize: 11,textColor: Colors.white,bold: true,),
+                  child: CText("￥" + model.price,textSize: 11,textColor: Colors.white,bold: true,),
                 ),
                 CContainer(
                   color: Colors.black,
