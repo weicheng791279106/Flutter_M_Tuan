@@ -19,7 +19,7 @@ class CImage extends StatelessWidget{
   Color borderColor;
 
 
-  CImage({this.url, this.asset, this.heiget, this.width,this.fit = BoxFit.fill,
+  CImage({this.url, this.asset, this.heiget, this.width,this.fit = BoxFit.cover,
     this.borderRadius = 0,
     this.leftTopRadius,
     this.leftBottomRadius,

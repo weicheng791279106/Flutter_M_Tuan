@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/conts/conts.dart';
 import 'package:m_tuan_flutter/conts/text_size.dart';
 import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
+import 'package:m_tuan_flutter/page/delicious_page.dart';
 import 'package:m_tuan_flutter/util/http.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:m_tuan_flutter/widget/c_circle_avatar.dart';
@@ -14,6 +16,8 @@ import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/c_text.dart';
 import 'package:banner_view/banner_view.dart';
+import 'package:m_tuan_flutter/widget/loading_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget{
 
@@ -26,43 +30,36 @@ class HomePage extends StatefulWidget{
 
 class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
 
-  /**Banner宽高比*/
-  final double BANNER_RATIO = 750 / 200;
-
-
-  ScrollController scrollController;
+  /**缓存Key*/
+  final key_resp_data = "key_home_resp_data";
 
   HomeDataResp homeDataResp;
 
   @override
   bool get wantKeepAlive => true;
 
-
   ///请求主页数据
   Future requestHomeData(BuildContext context) async {
-    HomeDataResp response = new HomeDataResp(await Http.post(
+    String respStr = await Http.post(
         context,
         "http://10.0.4.145:8080/home/homeData",
-        new FormData.from({
-        })));
+        new FormData.from({}));
+    HomeDataResp response = new HomeDataResp(respStr);
     if (response.code != Http.SUCCESS) return ;
-    setState(() {
-      homeDataResp = response;
-    });
+    /*缓存数据*/
+    await SharedPreferences.getInstance()..setString(key_resp_data, respStr);
+    /*更新UI*/
+    setState(() => homeDataResp = response);
   }
 
   @override
   void initState() {
     super.initState();
-    scrollController = new ScrollController();
     requestHomeData(context);
+    /**读取缓存*/
+    SharedPreferences.getInstance().then((prefs) => setState(()=> homeDataResp = HomeDataResp(prefs.get(key_resp_data))));
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    scrollController.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,114 +69,267 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
         color: CColors.bgDefault,
         direction: Direction.column,
         children: <Widget>[
-          CContainer(
-            padding: EdgeInsetsDirectional.only(start: 15,top: 10,bottom: 10,end: 15),
-            direction: Direction.row,
-            color: Colors.white,
-            children: <Widget>[
-              CCircleAvatar("",width: 35,height: 35),
-              CContainer(
-                direction: Direction.column,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                padding: EdgeInsetsDirectional.only(start: 12),
-                children: <Widget>[
-                  CText("深圳",textSize:15.5,bold:true,icon: Icons.keyboard_arrow_down,iconSize: 17,),
-                  CText("多云 27°",textSize: 10,margin: EdgeInsetsDirectional.only(top: 5),)
-                ],
-              ),
-              CContainer(
-                expand: true,
-                padding: EdgeInsetsDirectional.only(top: 12,bottom: 12),
-                margin: EdgeInsetsDirectional.only(start: 10,end: 15),
-                alignment: Alignment.center,
-                color: Colors.grey[100],
-                borderRadius: 10,
-                child: CText(
-                  "大汉堡",
-                  imageAsset: "images/ic_search.png",
-                  imageScale: 2.3,
-                  drawableDirection: DrawableDirection.left,
-                  textColor: Colors.grey,
-                  drawablePadding: 5,),
-              ),
-              Icon(Icons.add,size: 30,),
-            ],
-          ),
-          CContainer(
-            expand: true,
-            gradient: LinearGradient(
-              colors: [
-                Colors.white,
-                CColors.bgDefault,
-                CColors.bgDefault,
-                CColors.bgDefault,
-                CColors.bgDefault,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            child: RefreshIndicator(
-              child: ListView.builder(
-                itemBuilder: getItemWidget,
-                itemCount: 5 + (homeDataResp != null && homeDataResp.discountList != null ? homeDataResp.discountList.length:0),
-                controller: scrollController,
-                physics: AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsetsDirectional.only(bottom: 15),
-              ),
-              onRefresh:() => requestHomeData(context),
-            ),
-          ),
+          TitleBar(),
+          MyScrollView(homeDataResp,callback:() => requestHomeData(context)),
         ],
       ),
     );
   }
 
+}
+
+
+class TitleBar extends StatelessWidget{
+
+  @override
+  Widget build(BuildContext context) {
+    return CContainer(
+      padding: EdgeInsetsDirectional.only(start: 15,top: 10,bottom: 10,end: 15),
+      direction: Direction.row,
+      color: Colors.white,
+      children: <Widget>[
+        CCircleAvatar("",width: 35,height: 35),
+        CContainer(
+          direction: Direction.column,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsetsDirectional.only(start: 12),
+          children: <Widget>[
+            CText("深圳",textSize:15.5,bold:true,icon: Icons.keyboard_arrow_down,iconSize: 17,),
+            CText("多云 27°",textSize: 10,margin: EdgeInsetsDirectional.only(top: 5),)
+          ],
+        ),
+        CContainer(
+          expand: true,
+          padding: EdgeInsetsDirectional.only(top: 12,bottom: 12),
+          margin: EdgeInsetsDirectional.only(start: 10,end: 15),
+          alignment: Alignment.center,
+          color: Colors.grey[100],
+          borderRadius: 10,
+          child: CText(
+            "大汉堡",
+            imageAsset: "images/ic_search.png",
+            imageScale: 2.3,
+            drawableDirection: DrawableDirection.left,
+            textColor: Colors.grey,
+            drawablePadding: 5,),
+        ),
+        Icon(Icons.add,size: 30,),
+      ],
+    );
+  }
+
+}
+
+class MyScrollView extends StatelessWidget{
+
+  HomeDataResp homeDataResp;
+
+  RefreshCallback callback;
+
+  /**
+   * callback:下拉刷新回调
+   * */
+  MyScrollView(this.homeDataResp,{this.callback});
+
+  /**渐变背景*/
+  var gradient = LinearGradient(
+    colors: [
+      Colors.white,
+      CColors.bgDefault,
+      CColors.bgDefault,
+      CColors.bgDefault,
+      CColors.bgDefault,
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    if(homeDataResp == null) return LoadingWidget();
+    return CContainer(
+      expand: true,
+      gradient: gradient,
+      child: RefreshIndicator(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: 15),
+            child: Column(
+              children: <Widget>[
+                MainFuncWidget(homeDataResp.mainFuncList),
+                SubFuncWidget(homeDataResp.subFuncList),
+                MyBannerView(homeDataResp.bannerList),
+                MyListView(homeDataResp.discountList),
+                MovieWidget(homeDataResp.movieList),
+                HotelWidget(homeDataResp.hotelList),
+              ],
+            ),
+          ),
+        onRefresh: callback,
+      )
+    );
+  }
+
+}
+
+class MyListView extends StatelessWidget{
+
+  List<DiscountItem> discountItemList;
+
+  MyListView(this.discountItemList);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemBuilder: getItemWidget,
+      itemCount: discountItemList.length,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+    );
+  }
+
   Widget getItemWidget(BuildContext context,int index){
-    if(homeDataResp == null) return null;
-    switch(index){
-
-      case 0:
-        return funcWidgets(homeDataResp.mainFuncList);
-
+    DiscountItem model = discountItemList[index];
+    switch(model.type){
       case 1:
-        return subFuncWidgets(homeDataResp.subFuncList);
-
+        return DiscountItemWidget(model.title,model.discountList);
       case 2:
-        return bannerView(homeDataResp.bannerList);
-
+        return DiscountItemWidget2(model.discountList[0]);
+      case 3:
+        return DiscountItemWidget3(model.discountList[0]);
     }
+  }
 
-    int discountCount = homeDataResp.discountList != null ? homeDataResp.discountList.length:0;
-    int movieIndex = 2 + discountCount + 1;
-    int hotelIndex = 2 + discountCount + 2;
+}
 
-    if(index - 3 < discountCount){
-      DiscountItem discountItem = homeDataResp.discountList[index-3];
-      switch(discountItem.type){
 
-        case 1:
-          return DiscountItemWidget(discountItem.title,discountItem.discountList);
+class MainFuncWidget extends StatelessWidget{
 
-        case 2:
-          return DiscountItemWidget2(discountItem.discountList[0]);
+  List<Func> funcList;
 
-        case 3:
-          return DiscountItemWidget3(discountItem.discountList[0]);
+  MainFuncWidget(this.funcList);
 
-      }
-    }
+  @override
+  Widget build(BuildContext context) {
+    if(funcList == null) return null;
+    List<Widget> widgetList = List();
+    for(Func model in funcList) widgetList.add(getFuncWidget(context,model.imageUrl,model.name,model.tag));
+    return GridView.count(
+      padding: EdgeInsets.only(left: 15, right: 15,top: 15),
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      crossAxisCount: 5,
+      mainAxisSpacing: 17,
+      childAspectRatio: 0.75,
+      children: widgetList,
+    );
+  }
 
-    if(index == movieIndex)
-      return homeDataResp.movieList != null ? MovieWidget(homeDataResp.movieList):null;
+  Widget getFuncWidget(BuildContext context,String imageUrl,String name,String tag){
+    return GestureDetector(
+      child: Container(
+        alignment: Alignment.center,
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: <Widget>[
+            CContainer(
+              margin: EdgeInsetsDirectional.only(top: 2),
+              direction: Direction.column,
+              children: <Widget>[
+                CImage(url: imageUrl,width: 58,heiget: 58,),
+                CText(name, margin: EdgeInsets.all(4),textSize: 12.5,textColor: CColors.textTitle,),
+              ],
+            ),
+            /*标签*/
+            CContainer(
+              padding: EdgeInsetsDirectional.only(start: 4,end: 4,top: 1,bottom: 1),
+              color: StringUtils.isEmpty(tag) ? Colors.transparent:Colors.red,
+              borderRadius: 10,
+              child: CText(tag,textSize: 10,textColor: Colors.white,),
+            ),
+          ],
+        ),
+      ),
+      onTap: (){
+        switch(name){
 
-    if(index == hotelIndex)
-      return homeDataResp.hotelList != null ? HotelWidget(homeDataResp.hotelList):null;
+          case "美食":
+            DeliciousPage.startMe(context);
+            break;
 
+        }
+      },
+    );
+  }
+
+}
+
+class SubFuncWidget extends StatelessWidget{
+
+  final double imageWidth = 45.5;
+  final double imageHeight = 34.5;
+
+  List<Func> funcList;
+
+  SubFuncWidget(this.funcList);
+
+  @override
+  Widget build(BuildContext context) {
+    if(funcList == null) return null;
+    List<Widget> widgetList = List();
+    for(Func model in funcList) widgetList.add(getFuncWidget( model.imageUrl,model.name, model.tag,));
+    return GridView.count(
+      padding: EdgeInsets.only(left: 15, right: 15,top: 15),
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      crossAxisCount: 5,
+      mainAxisSpacing: 0,
+      childAspectRatio: 1.0,
+      children: widgetList,
+    );
+  }
+
+  Widget getFuncWidget(String imageUrl,String name,String tag){
+    return Container(
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                CImage(url: imageUrl,width: imageWidth,heiget: imageHeight,),
+                CText(name,textSize: 12.5,textColor: CColors.textTitle,),
+              ],
+            ),
+            CContainer(
+              color: !StringUtils.isEmpty(tag) ? Colors.red:Colors.transparent,
+              padding: EdgeInsetsDirectional.only(start: 4,end: 4,top: 1,bottom: 1),
+              borderRadius: 20,
+              leftBottomBorderRadius: 0,
+              child: CText(tag,textSize: 10,textColor: Colors.white,),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
 
+}
 
-  Widget bannerView(List<HomeBanner> bannerList){
+
+
+class MyBannerView extends StatelessWidget{
+
+  /**Banner宽高比*/
+  final double BANNER_RATIO = 750 / 200;
+
+  List<HomeBanner> bannerList;
+
+  MyBannerView(this.bannerList);
+
+  @override
+  Widget build(BuildContext context) {
     if(bannerList == null) return null;
 
     double screenWidth = MediaQuery.of(context).size.width;
@@ -200,80 +350,45 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
         indicatorBuilder: indicatorContainer,
         indicatorMargin: 6,
         indicatorNormal: indicatorItem(Color(0x7FEEEEEE)),
-        indicatorSelected: indicatorItem(CColors.primary, selected: true),
+        indicatorSelected: indicatorItem(CColors.primary, selected: true,),
+        log: false,
       ),
     );
   }
 
   Widget indicatorContainer(BuildContext context,Widget indicator) {
-
-    var container = new Container(
-      height: 25.0,
-      child: new Stack(
-        children: <Widget>[
-          new Opacity(
-            opacity: 0.5,
-            child: new Container(
-              color: Colors.transparent,
-            ),
-          ),
-          new Align(
-            alignment: Alignment.center,
-            child: indicator,
-          ),
-        ],
-      ),
-    );
-
-    return new Align(
+    return Align(
       alignment: Alignment.bottomCenter,
-      child: container,
-    );
-  }
-
-  Widget indicatorItem(Color color, {bool selected = false}) {
-    double size = selected ? 6.0 : 6.0;
-    return new Container(
-      width: size,
-      height: size,
-      decoration: new BoxDecoration(
-        color: color,
-        shape: BoxShape.rectangle,
-        borderRadius: new BorderRadius.all(
-          new Radius.circular(5.0),
+      child: Container(
+        height: 25.0,
+        child:  Stack(
+          children: <Widget>[
+            Opacity(
+              opacity: 0.5,
+              child: new Container(
+                color: Colors.transparent,
+              ),
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: indicator,
+            ),
+          ],
         ),
       ),
     );
   }
 
-
-  Widget funcWidgets(List<Func> funcList){
-    if(funcList == null) return null;
-    List<Widget> widgetList = List();
-    for(Func model in funcList) widgetList.add(TypeWidget(url: model.imageUrl,tag: model.tag,name: model.name));
-    return GridView.count(
-      padding: EdgeInsets.only(left: 15, right: 15,top: 15),
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      crossAxisCount: 5,
-      mainAxisSpacing: 17,
-      childAspectRatio: 0.75,
-      children: widgetList,
-    );
-  }
-
-  Widget subFuncWidgets(List<Func> funcList){
-    if(funcList == null) return null;
-    List<Widget> widgetList = List();
-    for(Func model in funcList) widgetList.add(SubTypeWidget(name: model.name,url: model.imageUrl,tag: model.tag,));
-    return GridView.count(
-      padding: EdgeInsets.only(left: 15, right: 15,top: 15),
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      crossAxisCount: 5,
-      mainAxisSpacing: 0,
-      childAspectRatio: 1.0,
-      children: widgetList,
+  Widget indicatorItem(Color color, {bool selected = false}) {
+    double size = selected ? 6.0 : 6.0;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.rectangle,
+        borderRadius: BorderRadius.all(Radius.circular(5.0),),
+      ),
     );
   }
 
@@ -360,19 +475,6 @@ class HotelWidget extends StatelessWidget{
       ],
     );
   }
-
-}
-
-
-
-class DiscountModel{
-
-  String imageUrl;
-  String title;
-  String price;
-  String discount;
-
-  DiscountModel(this.imageUrl, this.title, this.price, this.discount);
 
 }
 
@@ -724,86 +826,6 @@ class DiscountItemWidget extends StatelessWidget{
 
 }
 
-///子功能位分类
-class SubTypeWidget extends StatelessWidget{
-
-  String tag;
-  String name;
-  String url;
-  String asset;
-
-  SubTypeWidget({this.tag, this.name, this.url, this.asset});
-
-  @override
-  Widget build(BuildContext context) {
-    double imageWidth = 45.5;
-    double imageHeight = 34.5;
-
-    return Container(
-      alignment: Alignment.center,
-      child: SizedBox(
-        child: Stack(
-          alignment: Alignment.topRight,
-          children: <Widget>[
-            Column(
-              children: <Widget>[
-                CImage(url: url,width: imageWidth,heiget: imageHeight,),
-                CText(name,textSize: 12.5,textColor: CColors.textTitle,),
-              ],
-            ),
-            CContainer(
-              color: !StringUtils.isEmpty(tag) ? Colors.red:Colors.transparent,
-              padding: EdgeInsetsDirectional.only(start: 4,end: 4,top: 1,bottom: 1),
-              borderRadius: 20,
-              leftBottomBorderRadius: 0,
-              child: CText(tag,textSize: 10,textColor: Colors.white,),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-}
-
-///主功能位分类
-class TypeWidget extends StatelessWidget{
-
-  String tag;
-  String name;
-  String url;
-  String asset;
-
-  TypeWidget({this.tag, this.name, this.url, this.asset});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      child: Stack(
-        alignment: Alignment.topRight,
-        children: <Widget>[
-          CContainer(
-            margin: EdgeInsetsDirectional.only(top: 2),
-            direction: Direction.column,
-            children: <Widget>[
-              CImage(asset: asset,url: url,width: 58,heiget: 58,),
-              CText(name, margin: EdgeInsets.all(4),textSize: 12.5,textColor: CColors.textTitle,),
-            ],
-          ),
-          /*标签*/
-          CContainer(
-            padding: EdgeInsetsDirectional.only(start: 4,end: 4,top: 1,bottom: 1),
-            color: StringUtils.isEmpty(tag) ? Colors.transparent:Colors.red,
-            borderRadius: 10,
-            child: CText(tag,textSize: 10,textColor: Colors.white,),
-          ),
-        ],
-      ),
-    );
-  }
-
-}
 
 ///红色的渐变标签背景
 LinearGradient tagGradient = LinearGradient(

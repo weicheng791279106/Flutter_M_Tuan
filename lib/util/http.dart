@@ -13,7 +13,7 @@ class Http{
   static const FAILED = -10000;
   static const TOKEN_ERROR = -10001;
 
-  static post(BuildContext context,String url,FormData data) async {
+  static Future<String> post(BuildContext context,String url,FormData data) async {
     try{
       print("HTTP POST：${url} ${data}" );
       Response response = await Dio().post(url,data:data);
@@ -21,7 +21,7 @@ class Http{
       BaseResp baseResp = new BaseResp(response.data);
       if(baseResp.code != SUCCESS) Fluttertoast.showToast(msg: baseResp.msg);
       //if(baseResp.code == TOKEN_ERROR) _logout(context); //TODO：自动退出登录判断
-      return response.data;
+      return response.data.toString();
     }catch(e){
       Fluttertoast.showToast(msg: "网络错误");
       return BaseResp.fromParams(code:FAILED,msg:"网络错误").toString();
