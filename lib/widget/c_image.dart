@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 
 class CImage extends StatelessWidget{
@@ -18,7 +19,9 @@ class CImage extends StatelessWidget{
   double borderWidth;
   Color borderColor;
 
-
+  /**
+   * scale属性只对asset有用
+   * */
   CImage({this.url, this.asset, this.heiget, this.width,this.fit = BoxFit.cover,
     this.borderRadius = 0,
     this.leftTopRadius,
@@ -55,7 +58,7 @@ class CImage extends StatelessWidget{
   }
 
   Widget getChild(){
-    if(url != null) return Image.network(url,fit: fit,scale: scale,);
+    if(url != null) return CachedNetworkImage(imageUrl: url,fit: fit,);
     if(asset != null) return Image.asset(asset,fit: fit,scale: scale,);
   }
 

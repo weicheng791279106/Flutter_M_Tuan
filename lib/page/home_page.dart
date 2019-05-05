@@ -464,7 +464,7 @@ class HotelWidget extends StatelessWidget{
             )
           ],
         ),
-        CText(title,bold: true,margin: EdgeInsetsDirectional.only(top: 6,bottom: 4),maxLines: 1,),
+        SizedBox(width: itemWidth,child: CText(title,bold: true,margin: EdgeInsetsDirectional.only(top: 6,bottom: 4),maxLines: 1)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
