@@ -42,9 +42,9 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   Future requestHomeData(BuildContext context) async {
     String respStr = await Http.post(
         context,
-        "http://10.0.4.145:8080/home/homeData",
+        "home/homeData",
         new FormData.from({}));
-    HomeDataResp response = new HomeDataResp(respStr);
+    HomeDataResp response = HomeDataResp(respStr);
     if (response.code != Http.SUCCESS) return ;
     /*缓存数据*/
     await SharedPreferences.getInstance()..setString(key_resp_data, respStr);
