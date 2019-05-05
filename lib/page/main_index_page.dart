@@ -6,6 +6,7 @@ import 'package:m_tuan_flutter/page/discover_page.dart';
 import 'package:m_tuan_flutter/page/home_page.dart';
 import 'package:m_tuan_flutter/page/mine_page.dart';
 import 'package:m_tuan_flutter/page/order_page.dart';
+import 'package:m_tuan_flutter/util/toast.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/eachtab.dart';
@@ -23,6 +24,9 @@ class MainIndexPage extends StatefulWidget{
 class MainIndexPageState extends State<MainIndexPage> with SingleTickerProviderStateMixin {
 
   TabController controller;
+
+  /**上次点击退出时间戳*/
+  int lastClickOutMils = 0;
 
   @override
   void initState() {
@@ -55,27 +59,40 @@ class MainIndexPageState extends State<MainIndexPage> with SingleTickerProviderS
           child: w,
         );
       },
-      home: Scaffold(
-        body: new TabBarView(
-            controller: controller,
-            children: <Widget>[HomePage(), DiscoverPage(), OrderPage(), MinePage()]),
-        bottomNavigationBar: new Material(
-          color: Colors.white,
-          child: TabBar(
-              indicatorColor: Colors.transparent,
-              indicatorSize: TabBarIndicatorSize.tab,
+      home: WillPopScope(
+        onWillPop: doubleClickBack,
+        child: Scaffold(
+          body: new TabBarView(
               controller: controller,
-              labelColor: CColors.primary,
-              unselectedLabelColor: Colors.black,
-              tabs: <Widget>[
-                EachTab(text:"首页",height: 50,icon: CImage(asset: tabImage1,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
-                EachTab(text:"发现",height: 50,icon: CImage(asset: tabImage2,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
-                EachTab(text:"订单",height: 50,icon: CImage(asset: tabImage3,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
-                EachTab(text:"我的",height: 50,icon: CImage(asset: tabImage4,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
-              ]),
+              children: <Widget>[HomePage(), DiscoverPage(), OrderPage(), MinePage()]),
+          bottomNavigationBar: new Material(
+            color: Colors.white,
+            child: TabBar(
+                indicatorColor: Colors.transparent,
+                indicatorSize: TabBarIndicatorSize.tab,
+                controller: controller,
+                labelColor: CColors.primary,
+                unselectedLabelColor: Colors.black,
+                tabs: <Widget>[
+                  EachTab(text:"首页",height: 50,icon: CImage(asset: tabImage1,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
+                  EachTab(text:"发现",height: 50,icon: CImage(asset: tabImage2,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
+                  EachTab(text:"订单",height: 50,icon: CImage(asset: tabImage3,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
+                  EachTab(text:"我的",height: 50,icon: CImage(asset: tabImage4,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
+                ]),
+          ),
         ),
       ),
     );
+  }
+
+  Future<bool> doubleClickBack() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if (now - lastClickOutMils > 800) {
+      lastClickOutMils = now;
+      To.s("再按一次退出应用");
+      return Future.value(false);
+    }
+    return Future.value(true);
   }
 
 }
