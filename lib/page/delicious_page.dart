@@ -3,6 +3,7 @@ import 'package:banner_view/banner_view.dart';
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
+import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
@@ -13,7 +14,7 @@ import 'package:sticky_headers/sticky_headers/widget.dart';
 class DeliciousPage extends StatefulWidget{
 
   static void startMe(BuildContext context){
-    Navigator.push(context, new MaterialPageRoute(builder: (context) => new DeliciousPage()));
+      NavigatorUtil.pushWithAnimation(context, DeliciousPage());
   }
 
   @override
