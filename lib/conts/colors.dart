@@ -8,6 +8,8 @@ class CColors {
 
   static const Color textTitle = Color(0xFF333333);
 
+  static const Color half_transparent = Color(0x7F9E9E9E);
+
 
 
 }

@@ -34,13 +34,13 @@ class CContainer extends StatelessWidget{
   GestureTapCallback onTap;
   GestureLongPressCallback onLongPress;
 
-  CContainer({this.child, this.width,this.height,this.expand, this.flex, this.color, this.borderColor,
+  CContainer({Key key,this.child, this.width,this.height,this.expand, this.flex, this.color, this.borderColor,
     this.borderWidth, this.borderRadius, this.leftTopBorderRadius,
     this.rightTopBorderRadius, this.leftBottomBorderRadius,
     this.rightBottomBorderRadius, this.padding, this.margin, this.alignment,
     this.direction,this.children,this.gradient,this.boxShadow,
     this.mainAxisAlignment,this.mainAxisSize,this.crossAxisAlignment,
-    this.onTap, this.onLongPress});
+    this.onTap, this.onLongPress}): super(key: key);
 
   @override
   Widget build(BuildContext context) {

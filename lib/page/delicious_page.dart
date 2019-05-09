@@ -2,12 +2,16 @@
 import 'package:banner_view/banner_view.dart';
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
+import 'package:m_tuan_flutter/dialog/delicious_dialog.dart';
 import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
+import 'package:m_tuan_flutter/util/device_util.dart';
 import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
+import 'package:m_tuan_flutter/util/view_util.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/c_text.dart';
+import 'package:m_tuan_flutter/widget/pop_route.dart';
 import 'package:m_tuan_flutter/widget/rating_bar.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
 
@@ -196,6 +200,7 @@ class MBannerView extends StatelessWidget{
       height: bannerHeight,
       child: BannerView(
         widgets,
+        log:false,
         intervalDuration: Duration(seconds: 5),
         indicatorBuilder: indicatorContainer,
         indicatorMargin: 6,
@@ -444,24 +449,64 @@ class DiscountWidget extends StatelessWidget{
 
 class FilterWidget extends StatelessWidget{
 
+  GlobalKey widgetKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return CContainer(
+      key: widgetKey,
       color: Colors.white,
       padding: EdgeInsets.only(left: 15,right: 15,top: 10,bottom: 10),
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       direction: Direction.row,
       children: <Widget>[
-        CText("全部美食",textSize:13,icon: Icons.arrow_drop_down,iconSize: 17,textColor: Colors.grey[700],),
-        CText("附近",textSize:13,icon: Icons.arrow_drop_down,iconSize: 17,textColor: Colors.grey[700],),
-        CText("智能排序",textSize:13,icon: Icons.arrow_drop_down,iconSize: 17,textColor: Colors.grey[700],),
-        CText("筛选",textSize:13,icon: Icons.arrow_drop_down,iconSize: 17,textColor: Colors.grey[700],),
+        GestureDetector(
+          child: CText("全部美食",textSize:13,icon: Icons.arrow_drop_down,iconSize: 17,textColor: Colors.grey[700],),
+          onTap:() => deliciousTypeDialog(context,widgetKey),
+        ),
+        GestureDetector(
+          child: CText("附近",textSize:13,icon: Icons.arrow_drop_down,iconSize: 17,textColor: Colors.grey[700],),
+          onTap:() => deliciousLocationDialog(context,widgetKey),
+        ),
+        GestureDetector(
+          child: CText("智能排序",textSize:13,icon: Icons.arrow_drop_down,iconSize: 17,textColor: Colors.grey[700],),
+          onTap:() => sortTypeDialog(context,widgetKey),
+        ),
+        GestureDetector(
+          child: CText("筛选",textSize:13,icon: Icons.arrow_drop_down,iconSize: 17,textColor: Colors.grey[700],),
+          onTap:() => filterDialog(context,widgetKey),
+        ),
       ],
     );
   }
 
-}
+  /**显示美食类型选择弹窗*/
+  void deliciousTypeDialog(BuildContext context,GlobalKey widgetKey){
+    Scrollable.ensureVisible(context); /*把筛选头部移动到ScrollView顶端*/
+    Navigator.push(context, PopRoute(child: DeliciousTypeDialog(ViewUtil.getViewLocation(widgetKey).dy + ViewUtil.getViewSize(widgetKey).height)));
+  }
 
+  /**显示排序类型选择弹窗*/
+  void sortTypeDialog(BuildContext context,GlobalKey widgetKey){
+    Scrollable.ensureVisible(context); /*把筛选头部移动到ScrollView顶端*/
+    Navigator.push(context, PopRoute(child: SortTypeDialog(ViewUtil.getViewLocation(widgetKey).dy + ViewUtil.getViewSize(widgetKey).height)));
+  }
+
+  /**显示美食位置选择弹窗*/
+  void deliciousLocationDialog(BuildContext context,GlobalKey widgetKey){
+    Scrollable.ensureVisible(context); /*把筛选头部移动到ScrollView顶端*/
+    Navigator.push(context, PopRoute(child: DeliciousLocationDialog(
+        ViewUtil.getViewLocation(widgetKey).dy + ViewUtil.getViewSize(widgetKey).height)));
+  }
+
+  /**筛选弹窗*/
+  void filterDialog(BuildContext context,GlobalKey widgetKey){
+    Scrollable.ensureVisible(context); /*把筛选头部移动到ScrollView顶端*/
+    Navigator.push(context, PopRoute(child: FilterDialog(
+        ViewUtil.getViewLocation(widgetKey).dy + ViewUtil.getViewSize(widgetKey).height)));
+  }
+
+}
 
 class DeliciousWidget extends StatelessWidget{
 
