@@ -55,9 +55,9 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    requestHomeData(context);
     /**读取缓存*/
     SharedPreferences.getInstance().then((prefs) => setState(()=> homeDataResp = HomeDataResp(prefs.get(key_resp_data))));
+    requestHomeData(context);
   }
 
 

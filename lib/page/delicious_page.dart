@@ -1,18 +1,25 @@
 
 import 'package:banner_view/banner_view.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/dialog/delicious_dialog.dart';
+import 'package:m_tuan_flutter/model/resp/delicious_home_resp.dart';
+import 'package:m_tuan_flutter/model/resp/delicious_home_resp.dart';
+import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
 import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
 import 'package:m_tuan_flutter/util/device_util.dart';
+import 'package:m_tuan_flutter/util/http.dart';
 import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:m_tuan_flutter/util/view_util.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/c_text.dart';
+import 'package:m_tuan_flutter/widget/loading_widget.dart';
 import 'package:m_tuan_flutter/widget/pop_route.dart';
 import 'package:m_tuan_flutter/widget/rating_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
 
 class DeliciousPage extends StatefulWidget{
@@ -30,79 +37,32 @@ class DeliciousPage extends StatefulWidget{
 
 class DeliciousPageState extends State<DeliciousPage>{
 
-  List<DeliciousModel> deliciousList = [
-    DeliciousModel(
-        imageUrl: "http://10.0.4.145:8080/images/mtuan/discount_6.png",
-        isOpen: false,
-        title: "潮牛庄牛肉店 · 自家牛场更放心哦",
-        isDeliveryable: true,
-        isOrderable: true,
-        star: 3.5,
-        price: "￥76/人",
-        distance: "73km",
-        local: "西丽",
-        classify: "潮汕牛肉火锅",
-        populatiry: "当前人气62",
-        tagList: ["三好餐厅","西丽牛肉火锅第一名","包间可订","牛肉不错"],
-        hotTagSize: 2,
-        groupDiscount: "双人餐98元，2-3人餐118元，3-4人餐168元，4-6人餐268元",
-        couponDiscount: "85代100元",
-        payDiscount: "买单立享满100减5",
-        bossSay: "掌柜说：味道不错，服务态度好"
-    ),
-    DeliciousModel(
-        imageUrl: "http://10.0.4.145:8080/images/mtuan/discount_6.png",
-        isOpen: false,
-        title: "潮牛庄牛肉店 · 自家牛场更放心哦",
-        isDeliveryable: true,
-        isOrderable: true,
-        star: 3.5,
-        price: "￥76/人",
-        distance: "73km",
-        local: "西丽",
-        classify: "潮汕牛肉火锅",
-        populatiry: "当前人气62",
-        tagList: ["三好餐厅","西丽牛肉火锅第一名","包间可订","牛肉不错"],
-        hotTagSize: 2,
-        groupDiscount: "双人餐98元，2-3人餐118元，3-4人餐168元，4-6人餐268元",
-        couponDiscount: "85代100元",
-        payDiscount: "买单立享满100减5"
-    ),
-    DeliciousModel(
-        imageUrl: "http://10.0.4.145:8080/images/mtuan/discount_6.png",
-        isOpen: false,
-        title: "潮牛庄牛肉店 · 自家牛场更放心哦",
-        isDeliveryable: true,
-        isOrderable: true,
-        star: 3.5,
-        price: "￥76/人",
-        distance: "73km",
-        local: "西丽",
-        classify: "潮汕牛肉火锅",
-        populatiry: "当前人气62",
-        tagList: ["三好餐厅","西丽牛肉火锅第一名","包间可订","牛肉不错"],
-        hotTagSize: 2,
-        groupDiscount: "双人餐98元，2-3人餐118元，3-4人餐168元，4-6人餐268元",
-        couponDiscount: "85代100元",
-        payDiscount: "买单立享满100减5"
-    ),
-  ];
+  /**缓存Key*/
+  final key_resp_data = "key_delicious_resp_data";
 
-  List<Func> mainFuncList = [
-    Func.fromParams(name: "优惠团购",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_type_1.png",tag: "超省"),
-    Func.fromParams(name: "附近好券",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_type_2.png",),
-    Func.fromParams(name: "订座",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_type_3.png",),
-    Func.fromParams(name: "晚餐",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_type_4.png",),
-    Func.fromParams(name: "外卖",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_type_5.png",),
-  ];
+  DeliciousHomeResp deliciousHomeResp;
 
-  List<Func> subFuncList = [
-    Func.fromParams(name: "早餐",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_sub_type_1.png",tag: "超省"),
-    Func.fromParams(name: "附近好券",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_sub_type_2.png",),
-    Func.fromParams(name: "订座",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_sub_type_3.png",),
-    Func.fromParams(name: "晚餐",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_sub_type_4.png",),
-    Func.fromParams(name: "外卖",imageUrl:"http://10.0.4.145:8080/images/mtuan/ic_sub_type_5.png",),
-  ];
+  ///请求数据
+  Future requestData(BuildContext context) async {
+    String respStr = await Http.post(
+        context,
+        "delicious/deliciousHomeData",
+        new FormData.from({}));
+    DeliciousHomeResp response = DeliciousHomeResp(respStr);
+    if (response.code != Http.SUCCESS) return ;
+    /*缓存数据*/
+    await SharedPreferences.getInstance()..setString(key_resp_data, respStr);
+    /*更新UI*/
+    setState(() => deliciousHomeResp = response);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    /**读取缓存*/
+    SharedPreferences.getInstance().then((prefs) => setState(()=> deliciousHomeResp = DeliciousHomeResp(prefs.get(key_resp_data))));
+    requestData(context);
+  }
 
 
   @override
@@ -113,15 +73,17 @@ class DeliciousPageState extends State<DeliciousPage>{
         direction: Direction.column,
         children: <Widget>[
           TitleBar(),
+          deliciousHomeResp == null ?
+              LoadingWidget() :
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
                   MBannerView(),
-                  MainFuncWidget(mainFuncList),
-                  SubFuncWidget(subFuncList),
-                  DiscountWidget(),
-                  MyListView(deliciousList),
+                  MainFuncWidget(deliciousHomeResp.mainFuncList),
+                  SubFuncWidget(deliciousHomeResp.subFuncList),
+                  DiscountWidget(deliciousHomeResp.discountList),
+                  MyListView(deliciousHomeResp.deliciousList),
                 ],
               ),
             ),
@@ -348,7 +310,7 @@ class SubFuncWidget extends StatelessWidget{
 
 class MyListView extends StatelessWidget{
 
-  List<DeliciousModel> data;
+  List<Delicious> data;
 
   MyListView(this.data);
 
@@ -377,19 +339,10 @@ class DiscountWidget extends StatelessWidget{
 
   List<Discount> discountList;
 
+  DiscountWidget(this.discountList);
+
   @override
   Widget build(BuildContext context) {
-    discountList = [
-      Discount.fromParams(title: "百果园（豪景城店哈哈哈哈哈哈）",price:"27",tag: "秒杀 11:00开秒",imageList: ["http://10.0.4.145:8080/images/mtuan/discount_6.png"]),
-      Discount.fromParams(title: "尊宝比萨（后瑞店）",price:"27",imageList: ["http://10.0.4.145:8080/images/mtuan/discount_2.png"]),
-      Discount.fromParams(title: "正新鸡排（深圳华侨城店）",price:"27",imageList: ["http://10.0.4.145:8080/images/mtuan/discount_3.png"]),
-      Discount.fromParams(title: "正新鸡排（深圳华侨城店）",price:"27",imageList: ["http://10.0.4.145:8080/images/mtuan/discount_3.png"]),
-      Discount.fromParams(title: "正新鸡排（深圳华侨城店）",price:"27",imageList: ["http://10.0.4.145:8080/images/mtuan/discount_3.png"]),
-      Discount.fromParams(title: "正新鸡排（深圳华侨城店）",price:"27",imageList: ["http://10.0.4.145:8080/images/mtuan/discount_3.png"]),
-      Discount.fromParams(title: "正新鸡排（深圳华侨城店）",price:"27",imageList: ["http://10.0.4.145:8080/images/mtuan/discount_3.png"]),
-    ];
-
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -510,7 +463,7 @@ class FilterWidget extends StatelessWidget{
 
 class DeliciousWidget extends StatelessWidget{
 
-  DeliciousModel model;
+  Delicious model;
   bool topDivider;
 
 
@@ -547,7 +500,7 @@ class DeliciousWidget extends StatelessWidget{
                 Row(
                   children: <Widget>[
                     Expanded(child:  CText(model.title,textSize: 16,bold: true,),),
-                    !model.isDeliveryable ? null:
+                    !model.deliveryable ? null:
                     CContainer(
                       borderWidth: 0.5,
                       borderColor: Color.fromARGB(255, 255, 153, 0),
@@ -555,7 +508,7 @@ class DeliciousWidget extends StatelessWidget{
                       padding: EdgeInsets.only(left: 1.5,right: 1.5),
                       child: CText("外",textSize:13,textColor: Color.fromARGB(255, 255, 153, 0),),
                     ),
-                    !model.isOrderable ? null:
+                    !model.orderable ? null:
                     CContainer(
                       borderWidth: 0.5,
                       borderColor: Color.fromARGB(255, 94, 178, 43),
@@ -660,7 +613,7 @@ class DeliciousWidget extends StatelessWidget{
   List<Widget> tagWidgets(){
     List<Widget> tagWidgetList = [];
     int index = 1;
-    for(String tag in model.tagList){
+    for(String tag in model.tagStrList){
       Color color = index <= model.hotTagSize ? Color.fromARGB(255, 255, 153, 0):Colors.grey;
       tagWidgetList.add(
         CContainer(
@@ -679,33 +632,6 @@ class DeliciousWidget extends StatelessWidget{
 
 }
 
-class DeliciousModel{
-
-  DeliciousModel({this.imageUrl, this.title, this.tagList, this.star, this.price,
-      this.distance, this.local, this.classify, this.populatiry,
-      this.hotTagSize, this.groupDiscount, this.couponDiscount,
-      this.payDiscount, this.bossSay, this.isOpen, this.isDeliveryable,
-      this.isOrderable});
-
-  String imageUrl;
-  String title;
-  List<String> tagList;
-  double star;
-  String price;
-  String distance;
-  String local;
-  String classify;
-  String populatiry;
-  int hotTagSize;
-  String groupDiscount;
-  String couponDiscount;
-  String payDiscount;
-  String bossSay;
-  bool isOpen = true;
-  bool isDeliveryable = true;
-  bool isOrderable = true;
-
-}
 
 
 
