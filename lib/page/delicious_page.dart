@@ -5,10 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/dialog/delicious_dialog.dart';
 import 'package:m_tuan_flutter/model/resp/delicious_home_resp.dart';
-import 'package:m_tuan_flutter/model/resp/delicious_home_resp.dart';
+import 'package:m_tuan_flutter/model/resp/delicious_list_resp.dart';
 import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
-import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
-import 'package:m_tuan_flutter/util/device_util.dart';
 import 'package:m_tuan_flutter/util/http.dart';
 import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
@@ -40,10 +38,13 @@ class DeliciousPageState extends State<DeliciousPage>{
   /**缓存Key*/
   final key_resp_data = "key_delicious_resp_data";
 
+  /**主数据*/
   DeliciousHomeResp deliciousHomeResp;
+  /**列表数据*/
+  DeliciousListResp deliciousListResp;
 
-  ///请求数据
-  Future requestData(BuildContext context) async {
+  ///请求主数据（列表之外的数据）
+  Future requestMainData(BuildContext context) async {
     String respStr = await Http.post(
         context,
         "delicious/deliciousHomeData",
@@ -56,12 +57,28 @@ class DeliciousPageState extends State<DeliciousPage>{
     setState(() => deliciousHomeResp = response);
   }
 
+  ///请求列表数据
+  Future requestListData(BuildContext context,int pageNo,int pageSize) async {
+    String respStr = await Http.post(
+        context,
+        "delicious/deliciousListData",
+        new FormData.from({
+          "pageNo":pageNo,
+          "pageSize":pageSize,
+        }));
+    DeliciousListResp response = DeliciousListResp(respStr);
+    if (response.code != Http.SUCCESS) return ;
+    /*更新UI*/
+    setState(() => deliciousListResp = response);
+  }
+
   @override
   void initState() {
     super.initState();
     /**读取缓存*/
     SharedPreferences.getInstance().then((prefs) => setState(()=> deliciousHomeResp = DeliciousHomeResp(prefs.get(key_resp_data))));
-    requestData(context);
+    requestMainData(context);
+    requestListData(context, 1, 100);
   }
 
 
@@ -76,17 +93,20 @@ class DeliciousPageState extends State<DeliciousPage>{
           deliciousHomeResp == null ?
               LoadingWidget() :
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  MBannerView(),
-                  MainFuncWidget(deliciousHomeResp.mainFuncList),
-                  SubFuncWidget(deliciousHomeResp.subFuncList),
-                  DiscountWidget(deliciousHomeResp.discountList),
-                  MyListView(deliciousHomeResp.deliciousList),
-                ],
-              ),
-            ),
+            child: RefreshIndicator(
+              child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      MBannerView(deliciousHomeResp.bannerList),
+                      MainFuncWidget(deliciousHomeResp.mainFuncList),
+                      SubFuncWidget(deliciousHomeResp.subFuncList),
+                      DiscountWidget(deliciousHomeResp.discountList),
+                      MyListView(deliciousListResp),
+                    ],
+                  ),
+                ),
+              onRefresh:() => requestMainData(context),
+            )
           )
         ],
       ),
@@ -138,16 +158,10 @@ class MBannerView extends StatelessWidget{
 
   List<HomeBanner> bannerList;
 
-  MBannerView({this.bannerList});
+  MBannerView(this.bannerList);
 
   @override
   Widget build(BuildContext context) {
-    bannerList = [
-      HomeBanner.fromParams(imageUrl:"http://10.0.4.145:8080/images/mtuan/banner_1.png"),
-      HomeBanner.fromParams(imageUrl:"http://10.0.4.145:8080/images/mtuan/banner_2.png"),
-      HomeBanner.fromParams(imageUrl:"http://10.0.4.145:8080/images/mtuan/banner_3.png"),
-    ];
-
     double screenWidth = MediaQuery.of(context).size.width;
     double bannerHeight = (screenWidth - 15 * 2) / BANNER_RATIO;
     double bannerCircular = 5;
@@ -231,7 +245,7 @@ class MainFuncWidget extends StatelessWidget{
               margin: EdgeInsetsDirectional.only(top: 2),
               direction: Direction.column,
               children: <Widget>[
-                CImage(url: url,width: 55,heiget: 55,),
+                CImage(url: url,width: 47,heiget: 47,),
                 CText(name, margin: EdgeInsets.all(4),textSize: 12.5,textColor: CColors.textTitle,),
               ],
             ),
@@ -242,7 +256,7 @@ class MainFuncWidget extends StatelessWidget{
               borderRadius: 10,
               leftBottomBorderRadius: 0,
               borderWidth: 0.5,
-              borderColor: Colors.white,
+              borderColor: StringUtils.isEmpty(tag) ? Colors.transparent:Colors.white,
               child: CText(tag,textSize: 9,textColor: Colors.white,),
             ),
           ],
@@ -256,8 +270,8 @@ class MainFuncWidget extends StatelessWidget{
 
 class SubFuncWidget extends StatelessWidget{
 
-  final double imageWidth = 45.5;
-  final double imageHeight = 34.5;
+  final double imageWidth = 30;
+  final double imageHeight = 20;
 
   List<Func> funcList;
 
@@ -269,7 +283,7 @@ class SubFuncWidget extends StatelessWidget{
     List<Widget> widgetList = List();
     for(Func model in funcList) widgetList.add(getTypeWidget(model.imageUrl, model.name, model.tag,));
     return GridView.count(
-      padding: EdgeInsets.only(left: 15, right: 15,top: 15),
+      padding: EdgeInsets.only(left: 15, right: 15,top: 0),
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       crossAxisCount: 5,
@@ -286,10 +300,12 @@ class SubFuncWidget extends StatelessWidget{
         child: Stack(
           alignment: Alignment.topRight,
           children: <Widget>[
-            Column(
+            CContainer(
+              direction: Direction.column,
+              padding: EdgeInsets.only(top: 10),
               children: <Widget>[
                 CImage(url: url,width: imageWidth,heiget: imageHeight,),
-                CText(name,textSize: 12.5,textColor: CColors.textTitle,),
+                CText(name,textSize: 12.5,textColor: CColors.textTitle,padding: EdgeInsets.only(top: 7),),
               ],
             ),
             CContainer(
@@ -297,6 +313,8 @@ class SubFuncWidget extends StatelessWidget{
               padding: EdgeInsetsDirectional.only(start: 3,end: 3,top: 1,bottom: 1),
               borderRadius: 20,
               leftBottomBorderRadius: 0,
+              borderWidth: 0.5,
+              borderColor: StringUtils.isEmpty(tag) ? Colors.transparent:Colors.white,
               child: CText(tag,textSize: 8,textColor: Colors.white,),
             ),
           ],
@@ -304,29 +322,26 @@ class SubFuncWidget extends StatelessWidget{
       ),
     );
   }
-
 }
 
 
 class MyListView extends StatelessWidget{
 
-  List<Delicious> data;
+  DeliciousListResp deliciousListResp;
 
-  MyListView(this.data);
+  MyListView(this.deliciousListResp);
 
   @override
   Widget build(BuildContext context) {
+    if(deliciousListResp == null || deliciousListResp.deliciousList == null) return SizedBox();
     return StickyHeader(
       header: FilterWidget(),
       content: CContainer(
-        child: RefreshIndicator(
-          child: ListView.builder(
-            itemBuilder: (c,index) => DeliciousWidget(data[index],index != 0),
-            itemCount: data.length,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-          ),
-          onRefresh: () => null,
+        child: ListView.builder(
+          itemBuilder: (c,index) => DeliciousWidget(deliciousListResp.deliciousList[index],index != 0),
+          itemCount: deliciousListResp.deliciousList.length,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
         ),
       ),
     );
@@ -386,7 +401,7 @@ class DiscountWidget extends StatelessWidget{
         ),
         CContainer(
           borderRadius: 15,
-          borderColor: Colors.white,
+          borderColor: StringUtils.isEmpty(model.tag) ? Colors.transparent:Colors.white,
           borderWidth: 0.8,
           leftBottomBorderRadius: 0,
           color: StringUtils.isEmpty(model.tag) ? Colors.transparent:Color.fromARGB(255, 255, 75, 16),
@@ -461,6 +476,7 @@ class FilterWidget extends StatelessWidget{
 
 }
 
+/**美食列表Item Widget*/
 class DeliciousWidget extends StatelessWidget{
 
   Delicious model;
@@ -487,7 +503,7 @@ class DeliciousWidget extends StatelessWidget{
               children: <Widget>[
                 CImage(url: model.imageUrl,width: 60,heiget: 60,borderRadius: 2,),
                 SizedBox(height: 5),
-                CText("休息中",textColor:Colors.grey,textSize:10,icon: Icons.restore,drawableDirection: DrawableDirection.left,iconSize: 10,drawablePadding: 3,)
+                model.open ? SizedBox():CText("休息中",textColor:Colors.grey,textSize:10,icon: Icons.restore,drawableDirection: DrawableDirection.left,iconSize: 10,drawablePadding: 3,)
               ],
             ),
             CContainer(
@@ -500,7 +516,7 @@ class DeliciousWidget extends StatelessWidget{
                 Row(
                   children: <Widget>[
                     Expanded(child:  CText(model.title,textSize: 16,bold: true,),),
-                    !model.deliveryable ? null:
+                    !model.deliveryable ? SizedBox():
                     CContainer(
                       borderWidth: 0.5,
                       borderColor: Color.fromARGB(255, 255, 153, 0),
@@ -508,7 +524,7 @@ class DeliciousWidget extends StatelessWidget{
                       padding: EdgeInsets.only(left: 1.5,right: 1.5),
                       child: CText("外",textSize:13,textColor: Color.fromARGB(255, 255, 153, 0),),
                     ),
-                    !model.orderable ? null:
+                    !model.orderable ? SizedBox():
                     CContainer(
                       borderWidth: 0.5,
                       borderColor: Color.fromARGB(255, 94, 178, 43),
@@ -611,6 +627,7 @@ class DeliciousWidget extends StatelessWidget{
   }
 
   List<Widget> tagWidgets(){
+    if(StringUtils.isEmpty(model.tagList)) return [SizedBox()];
     List<Widget> tagWidgetList = [];
     int index = 1;
     for(String tag in model.tagStrList){
