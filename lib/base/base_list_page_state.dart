@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:m_tuan_flutter/widget/c_container.dart';
+import 'package:m_tuan_flutter/widget/c_text.dart';
 
 abstract class BaseListPageState<M, T extends StatefulWidget>
     extends State<T> {
@@ -194,37 +196,19 @@ abstract class BaseListPageState<M, T extends StatefulWidget>
 
   ///获取底部Widget
   Widget getMoreWidget() {
-    if (isNoMoreDate)
-      return new Container(
-        padding: new EdgeInsets.all(10),
-        child: new Text(
-          "没有更多数据了",
-          textAlign: TextAlign.center,
-          style: new TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
-      );
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              '加载中 ',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            new SizedBox.fromSize(
-                size: new Size(20, 20),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ))
-          ],
-        ),
-      ),
+    if (isNoMoreDate) return CText("没有更多数据了",textSize:14,textColor: Colors.grey,padding: EdgeInsets.all(10));
+    return CContainer(
+      padding: EdgeInsets.all(10),
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      direction: Direction.row,
+      children: <Widget>[
+        CText("加载中 ",textColor: Colors.grey,textSize:14,),
+        SizedBox.fromSize(
+            size: Size(20, 20),
+            child: CircularProgressIndicator(strokeWidth: 2,)
+        )
+      ],
     );
   }
 

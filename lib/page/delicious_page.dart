@@ -38,6 +38,15 @@ class DeliciousPageState extends State<DeliciousPage>{
   /**缓存Key*/
   final key_resp_data = "key_delicious_resp_data";
 
+  int pageNo = 1;
+  int pageSize = 10;
+  /**是否正在加载更多数据*/
+  bool isLoadingMore = false;
+  /**是否已没有更多数据*/
+  bool isNoMoreData = false;
+
+  ScrollController scrollController = ScrollController();
+
   /**主数据*/
   DeliciousHomeResp deliciousHomeResp;
   /**列表数据*/
@@ -59,6 +68,7 @@ class DeliciousPageState extends State<DeliciousPage>{
 
   ///请求列表数据
   Future requestListData(BuildContext context,int pageNo,int pageSize) async {
+    if (pageNo == 1) isNoMoreData = false;
     String respStr = await Http.post(
         context,
         "delicious/deliciousListData",
@@ -67,20 +77,40 @@ class DeliciousPageState extends State<DeliciousPage>{
           "pageSize":pageSize,
         }));
     DeliciousListResp response = DeliciousListResp(respStr);
-    if (response.code != Http.SUCCESS) return ;
-    /*更新UI*/
-    setState(() => deliciousListResp = response);
+    setState(() {
+      isLoadingMore = false;
+      if (response.code != Http.SUCCESS) return;
+      if(pageNo == 1){
+        deliciousListResp = response;
+        return;
+      }
+      if (response.deliciousList.length < pageSize) isNoMoreData = true;
+      deliciousListResp.deliciousList.addAll(response.deliciousList);
+    });
   }
 
   @override
   void initState() {
     super.initState();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+        if(isNoMoreData || isLoadingMore) return;
+        setState(() => isLoadingMore = true);
+        pageNo++;
+        requestListData(context, pageNo, pageSize);
+      }
+    });
     /**读取缓存*/
     SharedPreferences.getInstance().then((prefs) => setState(()=> deliciousHomeResp = DeliciousHomeResp(prefs.get(key_resp_data))));
     requestMainData(context);
-    requestListData(context, 1, 100);
+    requestListData(context, pageNo, pageSize);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,17 +125,23 @@ class DeliciousPageState extends State<DeliciousPage>{
           Expanded(
             child: RefreshIndicator(
               child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      MBannerView(deliciousHomeResp.bannerList),
-                      MainFuncWidget(deliciousHomeResp.mainFuncList),
-                      SubFuncWidget(deliciousHomeResp.subFuncList),
-                      DiscountWidget(deliciousHomeResp.discountList),
-                      MyListView(deliciousListResp),
-                    ],
-                  ),
+                controller: scrollController,
+                child: Column(
+                  children: <Widget>[
+                    MBannerView(deliciousHomeResp.bannerList),
+                    MainFuncWidget(deliciousHomeResp.mainFuncList),
+                    SubFuncWidget(deliciousHomeResp.subFuncList),
+                    DiscountWidget(deliciousHomeResp.discountList),
+                    MyListView(deliciousListResp),
+                    BottomWidget(isNoMoreData)
+                  ],
                 ),
-              onRefresh:() => requestMainData(context),
+              ),
+              onRefresh:(){
+                requestMainData(context);
+                pageNo = 1;
+                return requestListData(context, pageNo, pageSize);
+              },
             )
           )
         ],
@@ -114,7 +150,6 @@ class DeliciousPageState extends State<DeliciousPage>{
   }
 
 }
-
 
 class TitleBar extends StatelessWidget{
 
@@ -645,6 +680,33 @@ class DeliciousWidget extends StatelessWidget{
       index++;
     }
     return tagWidgetList;
+  }
+
+}
+
+/**列表最底部的加载更多数据*/
+class BottomWidget extends StatelessWidget{
+
+  bool isNoMoreData;
+
+  BottomWidget(this.isNoMoreData);
+
+  @override
+  Widget build(BuildContext context) {
+    if (isNoMoreData) return CText("没有更多数据了",textSize:14,textColor: Colors.grey,padding: EdgeInsets.all(10));
+    return CContainer(
+      padding: EdgeInsets.all(10),
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      direction: Direction.row,
+      children: <Widget>[
+        CText("加载中 ",textColor: Colors.grey,textSize:14,),
+        SizedBox.fromSize(
+            size: Size(20, 20),
+            child: CircularProgressIndicator(strokeWidth: 2,)
+        )
+      ],
+    );
   }
 
 }
