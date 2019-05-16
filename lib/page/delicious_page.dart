@@ -3,6 +3,7 @@ import 'package:banner_view/banner_view.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
+import 'package:m_tuan_flutter/conts/load_more_status.dart';
 import 'package:m_tuan_flutter/dialog/delicious_dialog.dart';
 import 'package:m_tuan_flutter/model/resp/delicious_home_resp.dart';
 import 'package:m_tuan_flutter/model/resp/delicious_list_resp.dart';
@@ -40,10 +41,9 @@ class DeliciousPageState extends State<DeliciousPage>{
 
   int pageNo = 1;
   int pageSize = 10;
-  /**是否正在加载更多数据*/
-  bool isLoadingMore = false;
-  /**是否已没有更多数据*/
-  bool isNoMoreData = false;
+
+  /**加载更多状态*/
+  LoadMoreStatus loadMoreStatus = LoadMoreStatus.normal;
 
   ScrollController scrollController = ScrollController();
 
@@ -68,7 +68,6 @@ class DeliciousPageState extends State<DeliciousPage>{
 
   ///请求列表数据
   Future requestListData(BuildContext context,int pageNo,int pageSize) async {
-    if (pageNo == 1) isNoMoreData = false;
     String respStr = await Http.post(
         context,
         "delicious/deliciousListData",
@@ -78,14 +77,17 @@ class DeliciousPageState extends State<DeliciousPage>{
         }));
     DeliciousListResp response = DeliciousListResp(respStr);
     setState(() {
-      isLoadingMore = false;
-      if (response.code != Http.SUCCESS) return;
-      if(pageNo == 1){
-        deliciousListResp = response;
+      if (response.code != Http.SUCCESS){
+        loadMoreStatus = LoadMoreStatus.loadError;
         return;
       }
-      if (response.deliciousList.length < pageSize) isNoMoreData = true;
+      if(pageNo == 1){
+        deliciousListResp = response;
+        loadMoreStatus = LoadMoreStatus.normal;
+        return;
+      }
       deliciousListResp.deliciousList.addAll(response.deliciousList);
+      loadMoreStatus = response.deliciousList.length < pageSize ? LoadMoreStatus.noMoredata:LoadMoreStatus.normal;
     });
   }
 
@@ -94,8 +96,8 @@ class DeliciousPageState extends State<DeliciousPage>{
     super.initState();
     scrollController.addListener(() {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
-        if(isNoMoreData || isLoadingMore) return;
-        setState(() => isLoadingMore = true);
+        if(loadMoreStatus == LoadMoreStatus.loading || loadMoreStatus == LoadMoreStatus.noMoredata) return;
+        setState(() => loadMoreStatus = LoadMoreStatus.loading);
         pageNo++;
         requestListData(context, pageNo, pageSize);
       }
@@ -126,6 +128,7 @@ class DeliciousPageState extends State<DeliciousPage>{
             child: RefreshIndicator(
               child: SingleChildScrollView(
                 controller: scrollController,
+                physics: new AlwaysScrollableScrollPhysics(),
                 child: Column(
                   children: <Widget>[
                     MBannerView(deliciousHomeResp.bannerList),
@@ -133,7 +136,7 @@ class DeliciousPageState extends State<DeliciousPage>{
                     SubFuncWidget(deliciousHomeResp.subFuncList),
                     DiscountWidget(deliciousHomeResp.discountList),
                     MyListView(deliciousListResp),
-                    BottomWidget(isNoMoreData)
+                    BottomWidget(loadMoreStatus)
                   ],
                 ),
               ),
@@ -687,13 +690,15 @@ class DeliciousWidget extends StatelessWidget{
 /**列表最底部的加载更多数据*/
 class BottomWidget extends StatelessWidget{
 
-  bool isNoMoreData;
+  LoadMoreStatus loadMoreStatus;
 
-  BottomWidget(this.isNoMoreData);
+  BottomWidget(this.loadMoreStatus);
 
   @override
   Widget build(BuildContext context) {
-    if (isNoMoreData) return CText("没有更多数据了",textSize:14,textColor: Colors.grey,padding: EdgeInsets.all(10));
+    //if(loadMoreStatus == LoadMoreStatus.normal) return SizedBox();
+    if(loadMoreStatus == LoadMoreStatus.noMoredata) return CText("我是有底线的",textSize:14,textColor: Colors.grey,padding: EdgeInsets.all(10));
+    if(loadMoreStatus == LoadMoreStatus.loadError) return CText("加载错误",textSize:14,textColor: Colors.grey,padding: EdgeInsets.all(10));
     return CContainer(
       padding: EdgeInsets.all(10),
       mainAxisAlignment: MainAxisAlignment.center,
