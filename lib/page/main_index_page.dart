@@ -59,6 +59,9 @@ class MainIndexPageState extends State<MainIndexPage> with SingleTickerProviderS
           child: w,
         );
       },
+      theme: ThemeData(
+        accentColor: Colors.grey, /*滑动到底颜色*/
+      ),
       home: WillPopScope(
         onWillPop: doubleClickBack,
         child: Scaffold(
