@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
  * */
 class NavigatorUtil{
 
+  /**带动画进入*/
   static void pushWithAnimation(BuildContext context,Widget pageWidget){
     Navigator.push<String>(
         context,

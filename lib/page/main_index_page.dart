@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
-import 'package:m_tuan_flutter/conts/conts.dart';
 import 'package:m_tuan_flutter/conts/text_size.dart';
 import 'package:m_tuan_flutter/page/discover_page.dart';
 import 'package:m_tuan_flutter/page/home_page.dart';
 import 'package:m_tuan_flutter/page/mine_page.dart';
 import 'package:m_tuan_flutter/page/order_page.dart';
 import 'package:m_tuan_flutter/util/toast.dart';
-import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/eachtab.dart';
 import 'package:m_tuan_flutter/widget/scale_text_widget.dart';
