@@ -23,7 +23,7 @@ class Http{
   static Future<String> post(BuildContext context,String url,FormData data) async {
     try{
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      data.add("token", prefs.get(SpKey.TOKEN)));
+      data.add("token", prefs.get(SpKey.TOKEN));
       print("HTTP POST：${BASE_URL}${url} ${data}" );
       Response response = await getDio().post(url,data:data,options: dioOptions);
       print("RESPONSE：${BASE_URL}${url} ${response}");
