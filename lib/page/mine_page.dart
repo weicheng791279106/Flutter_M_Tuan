@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/conts/text_size.dart';
+import 'package:m_tuan_flutter/event/event_bus.dart';
+import 'package:m_tuan_flutter/manager/acm.dart';
+import 'package:m_tuan_flutter/model/resp/login_resp.dart';
+import 'package:m_tuan_flutter/page/setting_page.dart';
+import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:m_tuan_flutter/widget/c_circle_avatar.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
@@ -22,6 +27,8 @@ class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
 
   double titleAlpha = 0.0;
 
+  User user;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -33,10 +40,17 @@ class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
       double newAlpha = controller.position.pixels / 100;
       if(newAlpha > 1) newAlpha = 1.0;
       if(titleAlpha == newAlpha) return;
-      setState(() {
-        titleAlpha = newAlpha;
-      });
+      setState(() => titleAlpha = newAlpha);
     });
+    eventBus.on<LoginEvent>().listen((event) => setState(() => user = event.user ) );
+    eventBus.on<LogoutEvent>().listen((event) => setState(() => user = null ) );
+    checkLogin();
+  }
+
+  /**检查登录状态*/
+  void checkLogin() async{
+    User user = await AcM.getUser();
+    if(user != null) setState(() => this.user = user );
   }
 
   @override
@@ -50,7 +64,6 @@ class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
     /*状态栏高度*/
     double statusBarHeight = MediaQuery.of(context).padding.top;
     double screenWidth = MediaQuery.of(context).size.width;
-
 
     return Stack(
       children: <Widget>[
@@ -81,10 +94,10 @@ class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
                     /*圆弧背景*/
                     child: CustomPaint(size:Size(screenWidth, 40),painter: ArcPainter(),),
                   ),
-                  CCircleAvatar("",width: 65,height: 65,borderWidth: 3,),
+                  CCircleAvatar(user != null && !StringUtils.isEmpty(user.avatarUrl) ? user.avatarUrl:"",width: 65,height: 65,borderWidth: 3,),
                 ],
               ),
-              CText("请点击登录",textSize: 18,margin: EdgeInsetsDirectional.only(top: 5),bold: true,),
+              CText(user != null ? user.name:"请点击登录",textSize: 18,margin: EdgeInsetsDirectional.only(top: 5),bold: true,),
               CContainer(
                 padding: EdgeInsetsDirectional.only(start: 20,end: 20,top: 0),
                 direction: Direction.column,
@@ -162,7 +175,10 @@ class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
             ],
           ),
           children: <Widget>[
-            Icon(Icons.settings,color: Colors.white,),
+            GestureDetector(
+              child: Icon(Icons.settings,color: Colors.white,),
+              onTap: () => NavigatorUtil.pushWithAnimation(context, SettingPage()),
+            ),
             Row(
               children: <Widget>[
                 Icon(Icons.headset_mic,color: Colors.white),

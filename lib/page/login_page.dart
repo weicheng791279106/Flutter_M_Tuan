@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/conts/sp_key.dart';
+import 'package:m_tuan_flutter/manager/acm.dart';
 import 'package:m_tuan_flutter/model/resp/login_resp.dart';
 import 'package:m_tuan_flutter/page/main_index_page.dart';
 import 'package:m_tuan_flutter/util/http.dart';
@@ -100,10 +101,8 @@ class LoginPageState extends State<LoginPage>{
               ],
             ),
             boxShadow: isPhoneOk ? BoxShadow(offset: Offset(0,16),color:Colors.grey,blurRadius: 5,spreadRadius: -15):null,
-            child: GestureDetector(
-              child: CText("获取短信验证码",textSize: 17,textColor: Colors.white,),
-              onTap: () => requestLogin(context, controller.text),
-            ),
+            onTap: () => requestLogin(context, controller.text),
+            child: CText("获取短信验证码",textSize: 17,textColor: Colors.white,),
           ),
           Expanded(child: SizedBox(),),
           Column(
@@ -145,7 +144,7 @@ class LoginPageState extends State<LoginPage>{
         }));
     LoginResp response = LoginResp(respStr);
     if (response.code != Http.SUCCESS) return ;
-    await SharedPreferences.getInstance()..setString(SpKey.TOKEN, response.token);
+    await AcM.saveUser(response.user, response.token);
     Navigator.pushAndRemoveUntil(
         context,
         new MaterialPageRoute(
