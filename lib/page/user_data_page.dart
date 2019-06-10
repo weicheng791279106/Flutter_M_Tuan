@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
+import 'package:m_tuan_flutter/dialog/loading_dialog.dart';
 import 'package:m_tuan_flutter/manager/acm.dart';
 import 'package:m_tuan_flutter/model/resp/login_resp.dart';
 import 'package:m_tuan_flutter/model/resp/update_avatar_resp.dart';
@@ -69,6 +70,7 @@ class UserDataPageState extends State<UserDataPage>{
 
   /**上传头像*/
   Future uploadAvatar(File file) async {
+    LoadingDialog.show(context);
     UpdateAvatarResp response = UpdateAvatarResp(await Http.post(
         context,
         "user/updateAvatar",
@@ -79,6 +81,7 @@ class UserDataPageState extends State<UserDataPage>{
     Fluttertoast.showToast(msg: "更新成功");
     user.avatarUrl = response.avatarImageUrl;
     AcM.saveUser(user, await AcM.token());
+    Navigator.pop(context);
     setState((){});
   }
 
