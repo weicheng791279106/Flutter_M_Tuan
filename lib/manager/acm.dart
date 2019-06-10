@@ -27,9 +27,6 @@ class AcM{
   /**获取Token*/
   static Future<String> token() async{
     SharedPreferences sp = await SharedPreferences.getInstance();
-
-    print("aaaa" + sp.getString(SpKey.TOKEN));
-
     return sp.getString(SpKey.TOKEN);
   }
 

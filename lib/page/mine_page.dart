@@ -5,6 +5,7 @@ import 'package:m_tuan_flutter/event/event_bus.dart';
 import 'package:m_tuan_flutter/manager/acm.dart';
 import 'package:m_tuan_flutter/model/resp/login_resp.dart';
 import 'package:m_tuan_flutter/page/setting_page.dart';
+import 'package:m_tuan_flutter/page/user_data_page.dart';
 import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:m_tuan_flutter/widget/c_circle_avatar.dart';
@@ -94,7 +95,10 @@ class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
                     /*圆弧背景*/
                     child: CustomPaint(size:Size(screenWidth, 40),painter: ArcPainter(),),
                   ),
-                  CCircleAvatar(user != null && !StringUtils.isEmpty(user.avatarUrl) ? user.avatarUrl:"",width: 65,height: 65,borderWidth: 3,),
+                  GestureDetector(
+                    child: CCircleAvatar(user != null && !StringUtils.isEmpty(user.avatarUrl) ? user.avatarUrl:"",width: 65,height: 65,borderWidth: 3,),
+                    onTap: () => NavigatorUtil.pushWithAnimation(context, UserDataPage()),
+                  ),
                 ],
               ),
               CText(user != null ? user.name:"请点击登录",textSize: 18,margin: EdgeInsetsDirectional.only(top: 5),bold: true,),
