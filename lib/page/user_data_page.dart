@@ -51,7 +51,7 @@ class UserDataPageState extends State<UserDataPage>{
           children: <Widget>[
             SizedBox(height: 10,),
             CommentBar("头像",
-              contentWidget: CCircleAvatar(user == null ? "":user.avatarUrl),
+              contentWidget: CCircleAvatar(user?.avatarUrl),
               onTap: ()=> PickImageUtil.pickImage(context, (File image) => uploadAvatar(image)),
             ),
             Divider(height: 0.1,),

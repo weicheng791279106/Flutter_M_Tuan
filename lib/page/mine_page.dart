@@ -96,7 +96,7 @@ class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
                     child: CustomPaint(size:Size(screenWidth, 40),painter: ArcPainter(),),
                   ),
                   GestureDetector(
-                    child: CCircleAvatar(user != null && !StringUtils.isEmpty(user.avatarUrl) ? user.avatarUrl:"",width: 65,height: 65,borderWidth: 3,),
+                    child: CCircleAvatar(user?.avatarUrl,width: 65,height: 65,borderWidth: 3,),
                     onTap: () => NavigatorUtil.pushWithAnimation(context, UserDataPage()),
                   ),
                 ],
