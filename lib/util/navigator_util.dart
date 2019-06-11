@@ -1,9 +1,20 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 /**
  * 转场工具类
  * */
 class NavigatorUtil{
+
+  /**打开新页面并关闭当前页*/
+  static void pushAndClose(BuildContext context,Widget pageWidget){
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => pageWidget
+        ), (route) => route == null
+    );
+  }
 
   /**带动画进入*/
   static void pushWithAnimation(BuildContext context,Widget pageWidget){

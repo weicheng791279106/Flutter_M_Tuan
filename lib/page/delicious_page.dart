@@ -52,43 +52,44 @@ class DeliciousPageState extends State<DeliciousPage>{
   /**列表数据*/
   DeliciousListResp deliciousListResp;
 
-  ///请求主数据（列表之外的数据）
-  Future requestMainData(BuildContext context) async {
-    String respStr = await Http.post(
-        context,
-        "delicious/deliciousHomeData",
-        new FormData.from({}));
-    DeliciousHomeResp response = DeliciousHomeResp(respStr);
-    if (response.code != Http.SUCCESS) return ;
-    /*缓存数据*/
-    await SharedPreferences.getInstance()..setString(key_resp_data, respStr);
-    /*更新UI*/
-    setState(() => deliciousHomeResp = response);
+  /**请求主数据（列表之外的数据）*/
+  void requestMainData(BuildContext context) async {
+    Http.post(context, "delicious/deliciousHomeData", null,
+      onSuccess: (data) async {
+        DeliciousHomeResp response = DeliciousHomeResp(data);
+        if (response.code != Http.SUCCESS) return ;
+        /*缓存数据*/
+        await SharedPreferences.getInstance()..setString(key_resp_data, data);
+        /*更新UI*/
+        setState(() => deliciousHomeResp = response);
+      }
+    );
   }
 
-  ///请求列表数据
+  /**请求列表数据*/
   Future requestListData(BuildContext context,int pageNo,int pageSize) async {
-    String respStr = await Http.post(
-        context,
-        "delicious/deliciousListData",
-        new FormData.from({
+    await Http.post(context, "delicious/deliciousListData",
+        FormData.from({
           "pageNo":pageNo,
           "pageSize":pageSize,
-        }));
-    DeliciousListResp response = DeliciousListResp(respStr);
-    setState(() {
-      if (response.code != Http.SUCCESS){
-        loadMoreStatus = LoadMoreStatus.loadError;
-        return;
-      }
-      if(pageNo == 1){
-        deliciousListResp = response;
-        loadMoreStatus = LoadMoreStatus.normal;
-        return;
-      }
-      deliciousListResp.deliciousList.addAll(response.deliciousList);
-      loadMoreStatus = response.deliciousList.length < pageSize ? LoadMoreStatus.noMoredata:LoadMoreStatus.normal;
-    });
+        }),
+        onSuccess: (data){
+          DeliciousListResp response = DeliciousListResp(data);
+          setState(() {
+            if (response.code != Http.SUCCESS){
+              loadMoreStatus = LoadMoreStatus.loadError;
+              return;
+            }
+            if(pageNo == 1){
+              deliciousListResp = response;
+              loadMoreStatus = LoadMoreStatus.normal;
+              return;
+            }
+            deliciousListResp.deliciousList.addAll(response.deliciousList);
+            loadMoreStatus = response.deliciousList.length < pageSize ? LoadMoreStatus.noMoredata:LoadMoreStatus.normal;
+          });
+        }
+    );
   }
 
   @override
@@ -162,7 +163,10 @@ class TitleBar extends StatelessWidget{
       padding: EdgeInsets.only(left: 10,right: 15,top: 10,bottom: 10),
       direction: Direction.row,
       children: <Widget>[
-        Icon(Icons.arrow_back),
+        GestureDetector(
+          child: Icon(Icons.arrow_back),
+          onTap: () => Navigator.pop(context),
+        ),
         CContainer(
           expand: true,
           padding: EdgeInsets.only(left: 15,top: 10,right: 10,bottom: 10),

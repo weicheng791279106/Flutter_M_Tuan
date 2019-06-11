@@ -8,7 +8,7 @@ import 'package:m_tuan_flutter/model/resp/base_resp.dart';
 import 'package:m_tuan_flutter/page/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-///Http封装
+/**Http封装*/
 class Http{
 
   static const SUCCESS = 10000;
@@ -21,21 +21,24 @@ class Http{
   static Dio dio;
   static final Options dioOptions = Options(connectTimeout: TIMEOUT_MILS,receiveTimeout: TIMEOUT_MILS);
 
-  static Future<String> post(BuildContext context,String url,FormData data) async {
+  static Future post(BuildContext context,String url,FormData data,
+      {Function(String data) onSuccess,Function(String msg) onError,Function() onAfter,Function() onBefore}) async{
+    if(onBefore != null) onBefore();
     try{
+      if(data == null) data = FormData();
       data.add("token", await AcM.token());
       print("HTTP POST：${BASE_URL}${url} ${data}" );
       Response response = await getDio().post(url,data:data,options: dioOptions);
       print("RESPONSE：${BASE_URL}${url} ${response}");
-      BaseResp baseResp = new BaseResp(response.data);
-      if(baseResp.code != SUCCESS) Fluttertoast.showToast(msg: baseResp.msg);
+      BaseResp baseResp = BaseResp(response.data);
+      if(baseResp.code != SUCCESS) onError(baseResp.msg);
       if(baseResp.code == TOKEN_ERROR) AcM.logout(context); /*自动退出登录判断*/
-      return response.toString();
-    }on DioError catch(e){
+      if(onSuccess != null) onSuccess(response.toString());
+    }on Error catch(e){
       print("HTTP ERROR：$e");
-      Fluttertoast.showToast(msg: "网络错误");
-      return BaseResp.fromParams(code:FAILED,msg:"网络错误").toString();
+      if(onError != null) onError("请求错误");
     }
+    if(onAfter != null) onAfter();
   }
 
   static Dio getDio(){

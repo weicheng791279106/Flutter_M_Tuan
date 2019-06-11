@@ -4,6 +4,7 @@ import 'package:m_tuan_flutter/conts/sp_key.dart';
 import 'package:m_tuan_flutter/event/event_bus.dart';
 import 'package:m_tuan_flutter/model/resp/login_resp.dart';
 import 'package:m_tuan_flutter/page/login_page.dart';
+import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -56,12 +57,7 @@ class AcM{
   /**退出登录*/
   static void logout(BuildContext context) async{
     await AcM.cleanUser();
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-            builder: (context) => LoginPage()
-        ), (route) => route == null
-    );
+    NavigatorUtil.pushAndClose(context, LoginPage());
   }
 
 }

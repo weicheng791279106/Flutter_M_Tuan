@@ -1,19 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
-import 'package:m_tuan_flutter/conts/sp_key.dart';
+import 'package:m_tuan_flutter/dialog/loading_dialog.dart';
 import 'package:m_tuan_flutter/manager/acm.dart';
 import 'package:m_tuan_flutter/model/resp/login_resp.dart';
 import 'package:m_tuan_flutter/page/main_index_page.dart';
 import 'package:m_tuan_flutter/util/http.dart';
+import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
-import 'package:m_tuan_flutter/util/toast.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/c_text.dart';
 import 'package:m_tuan_flutter/widget/c_textfield.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget{
 
@@ -135,21 +135,21 @@ class LoginPageState extends State<LoginPage>{
     );
   }
 
-  ///请求登录
+  /**请求登录*/
   Future requestLogin(BuildContext context,String phone) async {
-    String respStr = await Http.post(context, "user/login",
-        FormData.from({
-          "phone":phone,
-          "pwd":"123456",
-        }));
-    LoginResp response = LoginResp(respStr);
-    if (response.code != Http.SUCCESS) return ;
-    await AcM.saveUser(response.user, response.token);
-    Navigator.pushAndRemoveUntil(
-        context,
-        new MaterialPageRoute(
-            builder: (context) => MainIndexPage()
-        ), (route) => route == null
+    Http.post(context, "user/login",
+      FormData.from({
+        "phone":phone,
+        "pwd":"123456",
+      }),
+      onSuccess: (data) async {
+        LoginResp response = LoginResp(data);
+        await AcM.saveUser(response.user, response.token);
+        NavigatorUtil.pushAndClose(context, MainIndexPage());
+      },
+      onError: (msg) => Fluttertoast.showToast(msg: msg),
+      onBefore: () => LoadingDialog.show(context),
+      onAfter: () => Navigator.pop(context),
     );
   }
 

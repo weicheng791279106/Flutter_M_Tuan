@@ -42,29 +42,30 @@ class DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClien
 
   /**请求数据*/
   Future requestData(BuildContext context,int pageNo,int pageSize) async {
-    String respStr = await Http.post(
-        context,
-        "discover/discoverList",
-        new FormData.from({
+    await Http.post(context, "discover/discoverList",
+        FormData.from({
           "pageNo":pageNo,
           "pageSize":pageSize,
-        }));
-    DiscoverListResp response = DiscoverListResp(respStr);
-    if(response.code == Http.SUCCESS && pageNo == 1)
-      await SharedPreferences.getInstance()..setString(key_resp_data, respStr); /*缓存数据*/
-    setState(() {
-      if (response.code != Http.SUCCESS){
-        loadMoreStatus = LoadMoreStatus.loadError;
-        return;
-      }
-      if(pageNo == 1){
-        discoverListResp = response;
-        loadMoreStatus = LoadMoreStatus.normal;
-        return;
-      }
-      discoverListResp.discoverList.addAll(response.discoverList);
-      loadMoreStatus = response.discoverList.length < pageSize ? LoadMoreStatus.noMoredata:LoadMoreStatus.normal;
-    });
+        }),
+        onSuccess:(data) async {
+          DiscoverListResp response = DiscoverListResp(data);
+          if(response.code == Http.SUCCESS && pageNo == 1)
+            await SharedPreferences.getInstance()..setString(key_resp_data, data); /*缓存数据*/
+          setState(() {
+          if (response.code != Http.SUCCESS){
+            loadMoreStatus = LoadMoreStatus.loadError;
+            return;
+          }
+          if(pageNo == 1){
+            discoverListResp = response;
+            loadMoreStatus = LoadMoreStatus.normal;
+            return;
+          }
+          discoverListResp.discoverList.addAll(response.discoverList);
+          loadMoreStatus = response.discoverList.length < pageSize ? LoadMoreStatus.noMoredata:LoadMoreStatus.normal;
+          });
+        }
+    );
   }
 
   @override

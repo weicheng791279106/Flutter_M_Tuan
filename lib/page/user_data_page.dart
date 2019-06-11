@@ -70,19 +70,21 @@ class UserDataPageState extends State<UserDataPage>{
 
   /**上传头像*/
   Future uploadAvatar(File file) async {
-    LoadingDialog.show(context);
-    UpdateAvatarResp response = UpdateAvatarResp(await Http.post(
-        context,
-        "user/updateAvatar",
-        FormData.from({
-          "avatarImage": UploadFileInfo(file, "avatar.jpg"),
-        })));
-    if (response.code != Http.SUCCESS) return;
-    Fluttertoast.showToast(msg: "更新成功");
-    user.avatarUrl = response.avatarImageUrl;
-    AcM.saveUser(user, await AcM.token());
-    Navigator.pop(context);
-    setState((){});
+    Http.post(context, "user/updateAvatar",
+      FormData.from({
+        "avatarImage": UploadFileInfo(file, "avatar.jpg"),
+      }),
+      onSuccess: (data) async {
+        UpdateAvatarResp response = UpdateAvatarResp(data);
+        Fluttertoast.showToast(msg: "更新成功");
+        user.avatarUrl = response.avatarImageUrl;
+        AcM.saveUser(user, await AcM.token());
+        setState((){});
+      },
+      onError: (msg) => Fluttertoast.showToast(msg: msg),
+      onBefore: () => LoadingDialog.show(context),
+      onAfter: () => Navigator.pop(context),
+    );
   }
 
 }

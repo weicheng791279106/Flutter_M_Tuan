@@ -38,18 +38,18 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
-  ///请求主页数据
+  /**请求主页数据*/
   Future requestHomeData(BuildContext context) async {
-    String respStr = await Http.post(
-        context,
-        "home/homeData",
-        new FormData.from({}));
-    HomeDataResp response = HomeDataResp(respStr);
-    if (response.code != Http.SUCCESS) return ;
-    /*缓存数据*/
-    await SharedPreferences.getInstance()..setString(key_resp_data, respStr);
-    /*更新UI*/
-    setState(() => homeDataResp = response);
+    await Http.post(context, "home/homeData", null,
+      onSuccess: (data) async {
+        HomeDataResp response = HomeDataResp(data);
+        if (response.code != Http.SUCCESS) return ;
+        /*缓存数据*/
+        await SharedPreferences.getInstance()..setString(key_resp_data, data);
+        /*更新UI*/
+        setState(() => homeDataResp = response);
+      }
+    );
   }
 
   @override
