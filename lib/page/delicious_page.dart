@@ -76,10 +76,6 @@ class DeliciousPageState extends State<DeliciousPage>{
         onSuccess: (data){
           DeliciousListResp response = DeliciousListResp(data);
           setState(() {
-            if (response.code != Http.SUCCESS){
-              loadMoreStatus = LoadMoreStatus.loadError;
-              return;
-            }
             if(pageNo == 1){
               deliciousListResp = response;
               loadMoreStatus = LoadMoreStatus.normal;
@@ -88,7 +84,8 @@ class DeliciousPageState extends State<DeliciousPage>{
             deliciousListResp.deliciousList.addAll(response.deliciousList);
             loadMoreStatus = response.deliciousList.length < pageSize ? LoadMoreStatus.noMoredata:LoadMoreStatus.normal;
           });
-        }
+        },
+        onError: (error) => setState(() => loadMoreStatus = LoadMoreStatus.loadError)
     );
   }
 

@@ -49,13 +49,8 @@ class DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClien
         }),
         onSuccess:(data) async {
           DiscoverListResp response = DiscoverListResp(data);
-          if(response.code == Http.SUCCESS && pageNo == 1)
-            await SharedPreferences.getInstance()..setString(key_resp_data, data); /*缓存数据*/
+          if(pageNo == 1) await SharedPreferences.getInstance()..setString(key_resp_data, data); /*缓存数据*/
           setState(() {
-          if (response.code != Http.SUCCESS){
-            loadMoreStatus = LoadMoreStatus.loadError;
-            return;
-          }
           if(pageNo == 1){
             discoverListResp = response;
             loadMoreStatus = LoadMoreStatus.normal;
@@ -64,7 +59,8 @@ class DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClien
           discoverListResp.discoverList.addAll(response.discoverList);
           loadMoreStatus = response.discoverList.length < pageSize ? LoadMoreStatus.noMoredata:LoadMoreStatus.normal;
           });
-        }
+        },
+        onError: (error) => setState(() => loadMoreStatus = LoadMoreStatus.loadError)
     );
   }
 
