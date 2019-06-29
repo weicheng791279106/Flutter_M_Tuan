@@ -75,7 +75,7 @@ class MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
             padding: EdgeInsetsDirectional.only(start: 0,end: 0,top: 0),
             direction: Direction.column,
             children: <Widget>[
-              /*顶部的原型头像及弧形背景*/
+              /*顶部的圆形头像及弧形背景*/
               Stack(
                 alignment: Alignment.bottomCenter,
                 children: <Widget>[

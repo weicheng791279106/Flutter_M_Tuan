@@ -16,7 +16,7 @@ class Http{
   static const TOKEN_ERROR = -10001;
 
   static const TIMEOUT_MILS = 5000;
-  static const BASE_URL = "http://10.0.4.145:8080/";
+  static const BASE_URL = "http://10.0.2.244:8080/";
 
   static Dio dio;
   static final Options dioOptions = Options(connectTimeout: TIMEOUT_MILS,receiveTimeout: TIMEOUT_MILS);
