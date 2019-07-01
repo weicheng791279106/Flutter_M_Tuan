@@ -8,6 +8,7 @@ import 'package:m_tuan_flutter/dialog/delicious_dialog.dart';
 import 'package:m_tuan_flutter/model/resp/delicious_home_resp.dart';
 import 'package:m_tuan_flutter/model/resp/delicious_list_resp.dart';
 import 'package:m_tuan_flutter/model/resp/home_data_resp.dart';
+import 'package:m_tuan_flutter/page/delicious_info_page.dart';
 import 'package:m_tuan_flutter/util/http.dart';
 import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/string_util.dart';
@@ -526,142 +527,145 @@ class DeliciousWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Offstage(
-          offstage: !topDivider,
-          child: Divider(height: 0.1,color: Colors.grey[200],indent: 15,),
-        ),
-        CContainer(
-          padding: EdgeInsets.only(left: 15,right: 10,top: 20,bottom: 20),
-          direction: Direction.row,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                CImage(url: model.imageUrl,width: 60,heiget: 60,borderRadius: 2,),
-                SizedBox(height: 5),
-                model.open ? SizedBox():CText("休息中",textColor:Colors.grey,textSize:10,icon: Icons.restore,drawableDirection: DrawableDirection.left,iconSize: 10,drawablePadding: 3,)
-              ],
-            ),
-            CContainer(
-              expand: true,
-              margin: EdgeInsets.only(left: 10),
-              direction: Direction.column,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                /*标题行*/
-                Row(
-                  children: <Widget>[
-                    Expanded(child:  CText(model.title,textSize: 16,bold: true,),),
-                    !model.deliveryable ? SizedBox():
-                    CContainer(
-                      borderWidth: 0.5,
-                      borderColor: Color.fromARGB(255, 255, 153, 0),
-                      borderRadius: 1,
-                      padding: EdgeInsets.only(left: 1.5,right: 1.5),
-                      child: CText("外",textSize:13,textColor: Color.fromARGB(255, 255, 153, 0),),
+    return GestureDetector(
+      child: Column(
+        children: <Widget>[
+          Offstage(
+            offstage: !topDivider,
+            child: Divider(height: 0.1,color: Colors.grey[200],indent: 15,),
+          ),
+          CContainer(
+            padding: EdgeInsets.only(left: 15,right: 10,top: 20,bottom: 20),
+            direction: Direction.row,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  CImage(url: model.imageUrl,width: 60,heiget: 60,borderRadius: 2,),
+                  SizedBox(height: 5),
+                  model.open ? SizedBox():CText("休息中",textColor:Colors.grey,textSize:10,icon: Icons.restore,drawableDirection: DrawableDirection.left,iconSize: 10,drawablePadding: 3,)
+                ],
+              ),
+              CContainer(
+                expand: true,
+                margin: EdgeInsets.only(left: 10),
+                direction: Direction.column,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  /*标题行*/
+                  Row(
+                    children: <Widget>[
+                      Expanded(child:  CText(model.title,textSize: 16,bold: true,),),
+                      !model.deliveryable ? SizedBox():
+                      CContainer(
+                        borderWidth: 0.5,
+                        borderColor: Color.fromARGB(255, 255, 153, 0),
+                        borderRadius: 1,
+                        padding: EdgeInsets.only(left: 1.5,right: 1.5),
+                        child: CText("外",textSize:13,textColor: Color.fromARGB(255, 255, 153, 0),),
+                      ),
+                      !model.orderable ? SizedBox():
+                      CContainer(
+                        borderWidth: 0.5,
+                        borderColor: Color.fromARGB(255, 94, 178, 43),
+                        borderRadius: 1,
+                        padding: EdgeInsets.only(left: 1.5,right: 1.5),
+                        margin: EdgeInsets.only(left: 5),
+                        child: CText("订",textSize:13,textColor: Color.fromARGB(255, 94, 178, 43)),
+                      ),
+                    ],
+                  ),
+                  /*评分行*/
+                  CContainer(
+                    padding: EdgeInsets.only(top: 5,bottom: 5),
+                    direction: Direction.row,
+                    children: <Widget>[
+                      RatingBar(model.star),
+                      Expanded(child: CText(model.price,textColor: Colors.grey[700],)),
+                      CText(model.distance,textColor: Colors.grey[700],),
+                    ],
+                  ),
+                  /*位置行*/
+                  Row(
+                    children: <Widget>[
+                      Expanded(child: CText("${model.local} | ${model.classify}",textColor: Colors.grey[700],),),
+                      CText(model.populatiry,textColor: Color.fromARGB(255, 255, 153, 0),)
+                    ],
+                  ),
+                  /*标签行*/
+                  CContainer(
+                    padding: EdgeInsets.only(top: 5,bottom: 5),
+                    direction: Direction.row,
+                    children: tagWidgets(),
+                  ),
+                  /*掌柜说*/
+                  Offstage(
+                    offstage: StringUtils.isEmpty(model.bossSay),
+                    child: CText(model.bossSay,textColor: Colors.grey,),
+                  ),
+                  /*团购折扣*/
+                  Offstage(
+                    offstage: StringUtils.isEmpty(model.groupDiscount),
+                    child: CContainer(
+                      direction: Direction.row,
+                      margin: EdgeInsets.only(top: 10),
+                      children: <Widget>[
+                        CContainer(
+                          borderRadius: 1,
+                          padding: EdgeInsets.only(left: 1.5,right: 1.5),
+                          margin: EdgeInsets.only(right: 5),
+                          color: CColors.primary,
+                          child: CText("团",textColor: Colors.white,),
+                        ),
+                        Expanded(child:CText(model.groupDiscount,textColor: Colors.grey[700],))
+                      ],
                     ),
-                    !model.orderable ? SizedBox():
-                    CContainer(
-                      borderWidth: 0.5,
-                      borderColor: Color.fromARGB(255, 94, 178, 43),
-                      borderRadius: 1,
-                      padding: EdgeInsets.only(left: 1.5,right: 1.5),
-                      margin: EdgeInsets.only(left: 5),
-                      child: CText("订",textSize:13,textColor: Color.fromARGB(255, 94, 178, 43)),
+                  ),
+                  /*优惠券折扣*/
+                  Offstage(
+                    offstage: StringUtils.isEmpty(model.couponDiscount),
+                    child: CContainer(
+                      direction: Direction.row,
+                      margin: EdgeInsets.only(top: 10),
+                      children: <Widget>[
+                        CContainer(
+                          borderRadius: 1,
+                          padding: EdgeInsets.only(left: 1.5,right: 1.5),
+                          margin: EdgeInsets.only(right: 5),
+                          color: Color.fromARGB(255, 255, 135, 32),
+                          child: CText("券",textColor: Colors.white,),
+                        ),
+                        Expanded(child: CText(model.couponDiscount,textColor: Colors.grey[700],),)
+                      ],
                     ),
-                  ],
-                ),
-                /*评分行*/
-                CContainer(
-                  padding: EdgeInsets.only(top: 5,bottom: 5),
-                  direction: Direction.row,
-                  children: <Widget>[
-                    RatingBar(model.star),
-                    Expanded(child: CText(model.price,textColor: Colors.grey[700],)),
-                    CText(model.distance,textColor: Colors.grey[700],),
-                  ],
-                ),
-                /*位置行*/
-                Row(
-                  children: <Widget>[
-                    Expanded(child: CText("${model.local} | ${model.classify}",textColor: Colors.grey[700],),),
-                    CText(model.populatiry,textColor: Color.fromARGB(255, 255, 153, 0),)
-                  ],
-                ),
-                /*标签行*/
-                CContainer(
-                  padding: EdgeInsets.only(top: 5,bottom: 5),
-                  direction: Direction.row,
-                  children: tagWidgets(),
-                ),
-                /*掌柜说*/
-                Offstage(
-                  offstage: StringUtils.isEmpty(model.bossSay),
-                  child: CText(model.bossSay,textColor: Colors.grey,),
-                ),
-                /*团购折扣*/
-                Offstage(
-                  offstage: StringUtils.isEmpty(model.groupDiscount),
-                  child: CContainer(
-                    direction: Direction.row,
-                    margin: EdgeInsets.only(top: 10),
-                    children: <Widget>[
-                      CContainer(
-                        borderRadius: 1,
-                        padding: EdgeInsets.only(left: 1.5,right: 1.5),
-                        margin: EdgeInsets.only(right: 5),
-                        color: CColors.primary,
-                        child: CText("团",textColor: Colors.white,),
-                      ),
-                      Expanded(child:CText(model.groupDiscount,textColor: Colors.grey[700],))
-                    ],
                   ),
-                ),
-                /*优惠券折扣*/
-                Offstage(
-                  offstage: StringUtils.isEmpty(model.couponDiscount),
-                  child: CContainer(
-                    direction: Direction.row,
-                    margin: EdgeInsets.only(top: 10),
-                    children: <Widget>[
-                      CContainer(
-                        borderRadius: 1,
-                        padding: EdgeInsets.only(left: 1.5,right: 1.5),
-                        margin: EdgeInsets.only(right: 5),
-                        color: Color.fromARGB(255, 255, 135, 32),
-                        child: CText("券",textColor: Colors.white,),
-                      ),
-                      Expanded(child: CText(model.couponDiscount,textColor: Colors.grey[700],),)
-                    ],
+                  /*团购折扣*/
+                  Offstage(
+                    offstage: StringUtils.isEmpty(model.payDiscount),
+                    child: CContainer(
+                      direction: Direction.row,
+                      margin: EdgeInsets.only(top: 10),
+                      children: <Widget>[
+                        CContainer(
+                          borderRadius: 1,
+                          padding: EdgeInsets.only(left: 1.5,right: 1.5),
+                          margin: EdgeInsets.only(right: 5),
+                          color: Color.fromARGB(255, 255, 114, 0),
+                          child: CText("买",textColor: Colors.white,),
+                        ),
+                        Expanded(child: CText(model.payDiscount,textColor: Colors.grey[700],),)
+                      ],
+                    ),
                   ),
-                ),
-                /*团购折扣*/
-                Offstage(
-                  offstage: StringUtils.isEmpty(model.payDiscount),
-                  child: CContainer(
-                    direction: Direction.row,
-                    margin: EdgeInsets.only(top: 10),
-                    children: <Widget>[
-                      CContainer(
-                        borderRadius: 1,
-                        padding: EdgeInsets.only(left: 1.5,right: 1.5),
-                        margin: EdgeInsets.only(right: 5),
-                        color: Color.fromARGB(255, 255, 114, 0),
-                        child: CText("买",textColor: Colors.white,),
-                      ),
-                      Expanded(child: CText(model.payDiscount,textColor: Colors.grey[700],),)
-                    ],
-                  ),
-                ),
 
-              ],
-            )
-          ],
-        )
-      ],
+                ],
+              )
+            ],
+          )
+        ],
+      ),
+      onTap: () => DeliciousInfoPage.startMe(context),
     );
   }
 

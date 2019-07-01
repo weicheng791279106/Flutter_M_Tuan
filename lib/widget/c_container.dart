@@ -47,8 +47,7 @@ class CContainer extends StatelessWidget{
     expand = expand ?? false;
     flex = flex ?? 1;
 
-    if(width != null || height != null) return SizedBox(width: width,height: height,child: getContainerWidget(),);
-    if(expand) return new Expanded(child: getContainerWidget(),flex: flex,);
+    if(expand) return Expanded(child: getContainerWidget(),flex: flex,);
     return getContainerWidget();
   }
 
@@ -67,25 +66,27 @@ class CContainer extends StatelessWidget{
     borderWidth = borderWidth ?? 0;
 
     Widget child = this.child;
-    if(direction == Direction.row) child = new Row(children: children,mainAxisAlignment: mainAxisAlignment,mainAxisSize: mainAxisSize,crossAxisAlignment: crossAxisAlignment);
-    if(direction == Direction.column) child = new Column(children: children,mainAxisAlignment: mainAxisAlignment,mainAxisSize: mainAxisSize,crossAxisAlignment: crossAxisAlignment);
+    if(direction == Direction.row) child = Row(children: children,mainAxisAlignment: mainAxisAlignment,mainAxisSize: mainAxisSize,crossAxisAlignment: crossAxisAlignment);
+    if(direction == Direction.column) child = Column(children: children,mainAxisAlignment: mainAxisAlignment,mainAxisSize: mainAxisSize,crossAxisAlignment: crossAxisAlignment);
 
-    return new GestureDetector(
-      child: new Container(
+    return GestureDetector(
+      child: Container(
         child: child,
+        width: width,
+        height: height,
         padding: padding,
         margin: margin,
         alignment: alignment,
-        decoration: new BoxDecoration(
+        decoration: BoxDecoration(
             color: gradient != null ? null:color, /*有渐变属性的话color要传null*/
             gradient: gradient,
-            border: new Border.all(color: borderColor,width: borderWidth),
+            border: Border.all(color: borderColor,width: borderWidth),
             boxShadow: boxShadow == null ? null:[boxShadow],
-            borderRadius: new BorderRadius.only(
-                topLeft: new Radius.circular(leftTopBorderRadius),
-                topRight: new Radius.circular(rightTopBorderRadius),
-                bottomLeft: new Radius.circular(leftBottomBorderRadius),
-                bottomRight: new Radius.circular(rightBottomBorderRadius),
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(leftTopBorderRadius),
+                topRight: Radius.circular(rightTopBorderRadius),
+                bottomLeft: Radius.circular(leftBottomBorderRadius),
+                bottomRight: Radius.circular(rightBottomBorderRadius),
             ),
         ),
       ),

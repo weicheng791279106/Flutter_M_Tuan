@@ -28,10 +28,11 @@ class CText extends StatelessWidget{
   double imageWidth;
   double iconSize;
   double imageScale;
+  double lineHeight;
 
 
   CText(this.s, {this.textAlign, this.maxLines, this.textColor,this.color, this.textSize,
-      this.bold,this.margin,this.padding,this.decoration,
+      this.bold,this.margin,this.padding,this.decoration,this.lineHeight,
       this.icon,this.imageAsset,this.drawableDirection,this.drawablePadding,this.imageWidth,this.imageHeight,this.iconSize,this.imageScale});
 
   @override
@@ -98,6 +99,7 @@ class CText extends StatelessWidget{
         overflow: TextOverflow.ellipsis,
         softWrap: true,
         style: new TextStyle(
+          height: lineHeight,
           color: textColor,
           fontSize: textSize,
           fontWeight: bold ? FontWeight.w500 : FontWeight.normal, decoration: decoration ?? TextDecoration.none,
