@@ -94,7 +94,6 @@ class DeliciousInfoPage extends CStatefulWidget{
 
   /**请求套餐详情*/
   void requestComboData(BuildContext context) async {
-    print("aaaaaaaaaaaaa");
     model.isLoading = true;
     refresh();
     Http.post(context, "combo/getComboInfoByDeliciousId",
