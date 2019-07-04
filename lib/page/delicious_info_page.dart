@@ -1,42 +1,139 @@
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
+import 'package:m_tuan_flutter/conts/load_more_status.dart';
+import 'package:m_tuan_flutter/model/resp/combo_comment_resp.dart';
+import 'package:m_tuan_flutter/model/resp/combo_info_resp.dart';
+import 'package:m_tuan_flutter/util/http.dart';
 import 'package:m_tuan_flutter/util/navigator_util.dart';
+import 'package:m_tuan_flutter/util/time_util.dart';
 import 'package:m_tuan_flutter/widget/c_circle_avatar.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/c_stateful_widget.dart';
 import 'package:m_tuan_flutter/widget/c_text.dart';
+import 'package:m_tuan_flutter/widget/load_error_widget.dart';
+import 'package:m_tuan_flutter/widget/loading_widget.dart';
 import 'package:m_tuan_flutter/widget/rating_bar.dart';
+import 'package:scoped_model/scoped_model.dart';
+
+class _Model extends Model {
+
+  bool isLoading;
+  int pageNo = 1;
+  LoadMoreStatus loadMoreStatus = LoadMoreStatus.normal;
+
+  ComboInfoResp comboInfoResp;
+  ComboCommentResp comboCommentResp;
+
+  _Model of(context) => ScopedModel.of<_Model>(context);
+
+}
 
 /**美食详情页*/
 class DeliciousInfoPage extends CStatefulWidget{
 
-  static void startMe(BuildContext context){
-    NavigatorUtil.pushWithAnimation(context, DeliciousInfoPage());
+  _Model model = _Model();
+
+  final int PAGE_SIZE = 1;
+
+  int deliciousId;
+
+  ScrollController scrollController = ScrollController();
+
+  DeliciousInfoPage(this.deliciousId);
+
+  static void startMe(BuildContext context,int deliciousId){
+    NavigatorUtil.pushWithAnimation(context, DeliciousInfoPage(deliciousId));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+        if(model.loadMoreStatus == LoadMoreStatus.loading || model.loadMoreStatus == LoadMoreStatus.noMoredata) return;
+        model.pageNo ++;
+        requestcomboComments(context);
+      }
+    });
+    requestComboData(context);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: NestedScrollView(
-          headerSliverBuilder:(context,innerBoxIsScrolled) => <Widget>[
-            MyAppBar(),
-          ],
-          body: Column(
-            children: <Widget>[
-              BodyWidget(),
-              BottomWidget(),
+    return ScopedModel<_Model>(
+      model: model,
+      child: SafeArea(
+        child: Scaffold(
+          body: NestedScrollView(
+            controller: scrollController,
+            headerSliverBuilder:(context,innerBoxIsScrolled) => <Widget>[
+              MyAppBar(),
             ],
+            body: model.isLoading ? LoadingWidget():
+            model.comboInfoResp == null || model.comboInfoResp.combo == null ? LoadErrorWidget(() => requestComboData(context)):
+            Column(
+              children: <Widget>[
+                BodyWidget(),
+                BottomWidget(),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-}
+  /**请求套餐详情*/
+  void requestComboData(BuildContext context) async {
+    print("aaaaaaaaaaaaa");
+    model.isLoading = true;
+    refresh();
+    Http.post(context, "combo/getComboInfoByDeliciousId",
+        FormData.from({
+          "deliciousId":deliciousId,
+        }),
+        onSuccess: (data) {
+          model.comboInfoResp = ComboInfoResp(data);
+          requestcomboComments(context);
+        },
+        onAfter: (){
+          model.isLoading = false;
+          refresh();
+        }
+    );
+  }
 
+  /**请求评论*/
+  void requestcomboComments(BuildContext context) async{
+    model.loadMoreStatus = LoadMoreStatus.loading;
+    Http.post(context, "combo/getComboCommentList",
+        FormData.from({
+          "comboId":model.comboInfoResp.combo.id,
+          "pageNo":model.pageNo,
+          "pageSize":PAGE_SIZE,
+        }),
+        onSuccess: (data) {
+          ComboCommentResp response = ComboCommentResp(data);
+          if(model.pageNo == 1) model.comboCommentResp = response;
+          else model.comboCommentResp.commentList.addAll(response.commentList);
+          if(response.commentList.length < PAGE_SIZE) model.loadMoreStatus = LoadMoreStatus.noMoredata;
+          else model.loadMoreStatus = LoadMoreStatus.normal;
+        },
+        onError: (error) => model.loadMoreStatus = LoadMoreStatus.normal,
+        onAfter: () => refresh()
+    );
+  }
+
+}
 
 class MyAppBar extends StatelessWidget{
 
@@ -108,13 +205,14 @@ class DeliciousInfoWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    ComboInfoResp model = _Model().of(context).comboInfoResp;
     return CContainer(
       crossAxisAlignment: CrossAxisAlignment.start,
       direction: Direction.column,
       padding: EdgeInsets.only(left: 10,right: 10,bottom: 15),
       children: <Widget>[
-        CText("肯德基（壹方城店）",icon: Icons.keyboard_arrow_right,),
-        CText("【经典单人餐Y8】",textSize: 22,bold: true,),
+        CText(model.combo.delicious.title,icon: Icons.keyboard_arrow_right,),
+        CText(model.combo.comboName,textSize: 22,bold: true,),
         SizedBox(height: 10,),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,23 +222,25 @@ class DeliciousInfoWidget extends StatelessWidget{
           ],
         ),
         SizedBox(height: 10,),
-        CImage(asset: "images/discount_5.png",),
+        CImage(url:model.combo.imageUrl,width: double.maxFinite,),
         SizedBox(height: 10,),
-        CText("Y8",textSize: 14,),
+        CText(model.combo.comboSimpleName,textSize: 14,),
         SizedBox(height: 5,),
-        FoodWidget("香辣鸡腿堡",1,17,true,),
-        FoodWidget("新奥尔良烤翅",1,12,true),
-        FoodWidget("百事可乐",1,9,false),
+        ListView.builder(
+          itemCount: model.combo.foodList.length,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemBuilder:(context,index) => FoodWidget(
+            model.combo.foodList[index].name,
+            model.combo.foodList[index].count,
+            model.combo.foodList[index].price,
+            model.combo.foodList[index].recommend,
+          ),
+        ),
         SizedBox(height: 20,),
         CText("温馨提示",bold: true,textSize: 20,),
         SizedBox(height: 10,),
-        CText("有效期：\n• 2018.11.26至2019.12.31（周末、法定节假日通用）\n"
-            "使用时间：\n• 营业时间段内"
-            "使用规则：\n• 本卷不适用于肯德基宅急送及甜品站\n• 团购用户不可同时享受商家其它优惠"
-            "\n• 酒水饮料等问题，请致电商家咨询，以商家反馈为准",
-          textSize: 14,
-          lineHeight: 1.7,
-        ),
+        CText(model.combo.tips, textSize: 14, lineHeight: 1.7,),
       ],
     );
   }
@@ -266,6 +366,8 @@ class CommentWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    _Model model = _Model().of(context);
+    if(model == null) return SizedBox();
     return Column(
       children: <Widget>[
         SizedBox(height: 25,),
@@ -278,10 +380,14 @@ class CommentWidget extends StatelessWidget{
         ),
         SizedBox(height: 15,),
         ListView.builder(
-          itemCount: 5,
+          itemCount: model.comboCommentResp.commentList.length,
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
-          itemBuilder:(context,index) => CommentItemWidget(),
+          itemBuilder:(context,index) => CommentItemWidget(model.comboCommentResp.commentList[index]),
+        ),
+        CText(
+          model.loadMoreStatus == LoadMoreStatus.loading ? "加载中...":model.loadMoreStatus == LoadMoreStatus.noMoredata ? "我是有底线的~":"",
+          textColor: Colors.grey,
         )
       ],
     );
@@ -291,12 +397,16 @@ class CommentWidget extends StatelessWidget{
 
 class CommentItemWidget extends StatelessWidget{
 
+  Comment model;
+
+  CommentItemWidget(this.model,);
+
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        CCircleAvatar("",width: 50,height: 50,),
+        CCircleAvatar(model.createUser.avatarUrl,width: 50,height: 50,),
         CContainer(
           expand: true,
           direction: Direction.column,
@@ -309,40 +419,44 @@ class CommentItemWidget extends StatelessWidget{
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    CText("za3231",textSize: 14,),
+                    CText(model.createUser.name,textSize: 14,),
                     SizedBox(height: 5,),
-                    RatingBar(4.0),
+                    RatingBar(model.star),
                   ],
                 ),
                 Stack(
                   alignment: Alignment.topRight,
                   children: <Widget>[
-                    CImage(asset: "images/ic_quality_comment.png",width: 50,heiget: 50,),
-                    CText("2019-6-23",textColor: Colors.grey,textSize: 13,margin: EdgeInsets.only(top: 5),),
+                    model.quality ? CImage(asset: "images/ic_quality_comment.png",width: 50,heiget: 50,):SizedBox(),
+                    CText(TimeUtil.getSocialDate(model.createDate),textColor: Colors.grey,textSize: 13,margin: EdgeInsets.only(top: 5),),
                   ],
                 ),
               ],
             ),
             CText(
-              "聊城闸口肯德基用餐人数一直不多不少，等餐速度也不算慢，肯德基的小辣鸡腿堡很实惠，吃一个已经差不多八成饱了。剩下的是享受肯德基辣翅的时候了。肯德基辣翅外边包括金灿灿的油，散发着肉香。",
+              model.content,
               maxLines: 3,
               lineHeight: 1.1,
               padding: EdgeInsets.only(top: 5,bottom: 5),
             ),
             Row(
-              children: <Widget>[
-                CImage(asset: "images/discount_5.png",width: 70,heiget: 70,),
-                SizedBox(width: 5,),
-                CImage(asset: "images/discount_6.png",width: 70,heiget: 70,),
-                SizedBox(width: 5,),
-                CImage(asset: "images/discount_7.png",width: 70,heiget: 70,),
-              ],
+              children: getImageWidgets(),
             ),
             Divider(height: 20,),
           ],
         ),
       ],
     );
+  }
+
+  /**获取评论图片Widget*/
+  List<Widget> getImageWidgets(){
+    List<Widget> imageWidgetList = [];
+    model.imageList.forEach((url){
+      imageWidgetList.add(CImage(url: url,width: 70,heiget: 70,));
+      imageWidgetList.add(SizedBox(width: 5,));
+    });
+    return imageWidgetList;
   }
 
 }
@@ -352,6 +466,7 @@ class RestaurantInfoWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    ComboInfoResp model = _Model().of(context).comboInfoResp;
     return Column(
       children: <Widget>[
         Row(
@@ -366,7 +481,7 @@ class RestaurantInfoWidget extends StatelessWidget{
           crossAxisAlignment: CrossAxisAlignment.start,
           padding: EdgeInsets.only(top: 10),
           children: <Widget>[
-            CImage(width: 90,heiget: 90,asset: "images/discount_5.png",borderRadius: 2,),
+            CImage(width: 90,heiget: 90,url: model.combo.delicious.imageUrl,borderRadius: 2,),
             CContainer(
               expand: true,
               direction: Direction.column,
@@ -374,19 +489,19 @@ class RestaurantInfoWidget extends StatelessWidget{
               crossAxisAlignment: CrossAxisAlignment.start,
               padding: EdgeInsets.only(left: 10),
               children: <Widget>[
-                CText("肯德基（壹方城店）",textSize: 18,),
+                CText(model.combo.delicious.title,textSize: 18,maxLines: 1,),
                 SizedBox(height: 4,),
                 Row(
                   children: <Widget>[
-                    RatingBar(4.0),
-                    CText("4.0分",textColor: CColors.orange,margin: EdgeInsets.only(left: 5),),
+                    RatingBar(model.combo.delicious.star),
+                    CText("${model.combo.delicious.star}分",textColor: CColors.orange,margin: EdgeInsets.only(left: 5),),
                   ],
                 ),
                 SizedBox(height: 4,),
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: CText("86m|宝安区新湖路99号西南楼2层711对面",margin: EdgeInsets.only(right: 10),),
+                      child: CText("${model.combo.delicious.distance}|${model.combo.delicious.local}",margin: EdgeInsets.only(right: 10),),
                     ),
                     Icon(Icons.phone,color: Colors.grey,),
                   ],
@@ -405,6 +520,7 @@ class BottomWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    _Model model = _Model().of(context);
     return CContainer(
       color: Colors.white,
       padding: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 13),
@@ -416,18 +532,18 @@ class BottomWidget extends StatelessWidget{
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  CText("¥5.4",textSize: 18,bold: true,textColor: CColors.orange,),
+                  CText("¥${model.comboInfoResp.combo.price}",textSize: 18,bold: true,textColor: CColors.orange,),
                   CContainer(
                     margin: EdgeInsets.only(left: 5),
                     padding: EdgeInsets.only(left: 5,right: 5),
                     borderRadius: 2,
                     borderWidth: 0.5,
                     borderColor: CColors.orange,
-                    child: CText("9 折",textColor: CColors.orange,textSize: 11,),
+                    child: CText(model.comboInfoResp.combo.discount,textColor: CColors.orange,textSize: 11,),
                   ),
                 ],
               ),
-              CText("最高门市价 ¥6",textSize: 10,textColor: Colors.grey,margin: EdgeInsets.only(top: 5),)
+              CText("最高门市价 ¥${model.comboInfoResp.combo.originalPrice}",textSize: 10,textColor: Colors.grey,margin: EdgeInsets.only(top: 5),)
             ],
           ),
           CContainer(

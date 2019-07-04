@@ -37,6 +37,7 @@ dependencies:
   curved_navigation_bar: ^0.1.2
   banner_view: ^1.1.2
   sticky_headers: ^0.1.7
+  scoped_model: ^0.3.0
 
 dev_dependencies:
   flutter_test:

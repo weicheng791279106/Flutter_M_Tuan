@@ -96,7 +96,6 @@ class CText extends StatelessWidget{
     return new Text(s ?? "",
         textAlign: textAlign,
         maxLines: maxLines,
-        overflow: TextOverflow.ellipsis,
         softWrap: true,
         style: new TextStyle(
           height: lineHeight,

@@ -430,7 +430,7 @@ class DiscountWidget extends StatelessWidget{
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             CImage(url: model.imageList[0],borderRadius: 4,heiget: 85),
-            CText(model.title,),
+            CText(model.title,maxLines: 1,),
             Row(
               children: <Widget>[
                 CText("￥",textSize: 12,textColor: Color.fromARGB(255, 255, 153, 0)),
@@ -665,7 +665,7 @@ class DeliciousWidget extends StatelessWidget{
           )
         ],
       ),
-      onTap: () => DeliciousInfoPage.startMe(context),
+      onTap: () => DeliciousInfoPage.startMe(context,model.id),
     );
   }
 

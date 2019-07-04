@@ -29,6 +29,7 @@ class DeliciousListResp {
 class Delicious {
 
   int hotTagSize;
+  int id;
   double star;
   bool deliveryable;
   bool open;
@@ -48,10 +49,11 @@ class Delicious {
   List<String> imageUrlList;
   List<String> tagStrList;
 
-  Delicious.fromParams({this.hotTagSize, this.star, this.deliveryable, this.open, this.orderable, this.bossSay, this.classify, this.couponDiscount, this.distance, this.groupDiscount, this.imageUrl, this.local, this.payDiscount, this.populatiry, this.price, this.tagList, this.title, this.imageUrlList, this.tagStrList});
+  Delicious.fromParams({this.hotTagSize, this.id, this.star, this.deliveryable, this.open, this.orderable, this.bossSay, this.classify, this.couponDiscount, this.distance, this.groupDiscount, this.imageUrl, this.local, this.payDiscount, this.populatiry, this.price, this.tagList, this.title, this.imageUrlList, this.tagStrList});
 
   Delicious.fromJson(jsonRes) {
     hotTagSize = jsonRes['hotTagSize'];
+    id = jsonRes['id'];
     star = jsonRes['star'];
     deliveryable = jsonRes['deliveryable'];
     open = jsonRes['open'];
@@ -83,7 +85,7 @@ class Delicious {
 
   @override
   String toString() {
-    return '{"hotTagSize": $hotTagSize,"star": $star,"deliveryable": $deliveryable,"open": $open,"orderable": $orderable,"bossSay": ${bossSay != null?'${json.encode(bossSay)}':'null'},"classify": ${classify != null?'${json.encode(classify)}':'null'},"couponDiscount": ${couponDiscount != null?'${json.encode(couponDiscount)}':'null'},"distance": ${distance != null?'${json.encode(distance)}':'null'},"groupDiscount": ${groupDiscount != null?'${json.encode(groupDiscount)}':'null'},"imageUrl": ${imageUrl != null?'${json.encode(imageUrl)}':'null'},"local": ${local != null?'${json.encode(local)}':'null'},"payDiscount": ${payDiscount != null?'${json.encode(payDiscount)}':'null'},"populatiry": ${populatiry != null?'${json.encode(populatiry)}':'null'},"price": ${price != null?'${json.encode(price)}':'null'},"tagList": ${tagList != null?'${json.encode(tagList)}':'null'},"title": ${title != null?'${json.encode(title)}':'null'},"imageUrlList": $imageUrlList,"tagStrList": $tagStrList}';
+    return '{"hotTagSize": $hotTagSize,"id": $id,"star": $star,"deliveryable": $deliveryable,"open": $open,"orderable": $orderable,"bossSay": ${bossSay != null?'${json.encode(bossSay)}':'null'},"classify": ${classify != null?'${json.encode(classify)}':'null'},"couponDiscount": ${couponDiscount != null?'${json.encode(couponDiscount)}':'null'},"distance": ${distance != null?'${json.encode(distance)}':'null'},"groupDiscount": ${groupDiscount != null?'${json.encode(groupDiscount)}':'null'},"imageUrl": ${imageUrl != null?'${json.encode(imageUrl)}':'null'},"local": ${local != null?'${json.encode(local)}':'null'},"payDiscount": ${payDiscount != null?'${json.encode(payDiscount)}':'null'},"populatiry": ${populatiry != null?'${json.encode(populatiry)}':'null'},"price": ${price != null?'${json.encode(price)}':'null'},"tagList": ${tagList != null?'${json.encode(tagList)}':'null'},"title": ${title != null?'${json.encode(title)}':'null'},"imageUrlList": $imageUrlList,"tagStrList": $tagStrList}';
   }
 }
 

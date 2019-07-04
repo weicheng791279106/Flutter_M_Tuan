@@ -236,7 +236,7 @@ class MainFuncWidget extends StatelessWidget{
               direction: Direction.column,
               children: <Widget>[
                 CImage(url: imageUrl,width: 58,heiget: 58,),
-                CText(name, margin: EdgeInsets.all(4),textSize: 12.5,textColor: CColors.textTitle,),
+                CText(name, margin: EdgeInsets.all(4),textSize: 12.5,textColor: CColors.textTitle,maxLines: 1,),
               ],
             ),
             /*标签*/
@@ -298,7 +298,7 @@ class SubFuncWidget extends StatelessWidget{
             Column(
               children: <Widget>[
                 CImage(url: imageUrl,width: imageWidth,heiget: imageHeight,),
-                CText(name,textSize: 12.5,textColor: CColors.textTitle,),
+                CText(name,textSize: 12.5,textColor: CColors.textTitle,maxLines: 1,),
               ],
             ),
             CContainer(
