@@ -28,7 +28,7 @@ packages:
       name: cached_network_image
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.4.2"
+    version: "1.0.0"
   charcode:
     dependency: transitive
     description:
@@ -103,7 +103,7 @@ packages:
       name: flutter_cache_manager
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.2"
+    version: "1.0.0"
   flutter_staggered_grid_view:
     dependency: "direct main"
     description:
@@ -185,7 +185,7 @@ packages:
       name: path_provider
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.4.1"
+    version: "1.1.0"
   pedantic:
     dependency: transitive
     description:
@@ -226,6 +226,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.5.4"
+  sqflite:
+    dependency: transitive
+    description:
+      name: sqflite
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.6+1"
   stack_trace:
     dependency: transitive
     description:
@@ -260,7 +267,7 @@ packages:
       name: synchronized
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.5.3+2"
+    version: "2.1.0+1"
   term_glyph:
     dependency: transitive
     description:
@@ -295,7 +302,7 @@ packages:
       name: uuid
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.3"
+    version: "2.0.2"
   vector_math:
     dependency: transitive
     description:
@@ -305,4 +312,4 @@ packages:
     version: "2.0.8"
 sdks:
   dart: ">=2.1.0 <3.0.0"
-  flutter: ">=0.1.4 <2.0.0"
+  flutter: ">=1.2.1 <2.0.0"

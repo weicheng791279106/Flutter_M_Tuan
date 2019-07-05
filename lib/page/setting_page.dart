@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/manager/acm.dart';
 import 'package:m_tuan_flutter/page/user_data_page.dart';
 import 'package:m_tuan_flutter/util/dialog_util.dart';
 import 'package:m_tuan_flutter/util/navigator_util.dart';
+import 'package:m_tuan_flutter/util/toast.dart';
 import 'package:m_tuan_flutter/widget/c_container.dart';
 import 'package:m_tuan_flutter/widget/c_text.dart';
 import 'package:m_tuan_flutter/widget/commen_bar.dart';
@@ -48,7 +50,7 @@ class SettingPageState extends State<SettingPage>{
               SizedBox(height: 10,),
               CommentBar("安全中心"),
               Divider(height: 0.1,),
-              CommentBar("通用"),
+              CommentBar("清除缓存",onTap: cleanCache,),
               SizedBox(height: 10,),
               CommentBar("关于美团"),
               CContainer(
@@ -59,7 +61,6 @@ class SettingPageState extends State<SettingPage>{
                 child: CText("退出账户",textSize: 18,textColor: Colors.black,bold: true,),
                 borderRadius: 2,
                 boxShadow: BoxShadow(color: Colors.grey[300],offset: Offset(0, 3),blurRadius: 1,spreadRadius: 1),
-                //onTap: () => AcM.logout(context)
                 onTap: () =>
                     DialogUtil.alertDialog(context, "确定退出登录吗？", "确定", ()=> AcM.logout(context),"取消", null)
               ),
@@ -68,6 +69,12 @@ class SettingPageState extends State<SettingPage>{
         ),
       ),
     );
+  }
+
+  /**清除缓存*/
+  void cleanCache() async{
+    await DefaultCacheManager().emptyCache();
+    To.s("清除缓存成功");
   }
 
 }
