@@ -6,6 +6,7 @@ import 'package:m_tuan_flutter/conts/sp_key.dart';
 import 'package:m_tuan_flutter/manager/acm.dart';
 import 'package:m_tuan_flutter/model/resp/base_resp.dart';
 import 'package:m_tuan_flutter/page/login_page.dart';
+import 'package:m_tuan_flutter/util/log.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /**Http封装*/
@@ -29,7 +30,8 @@ class Http{
       data.add("token", await AcM.token());
       print("HTTP POST：${BASE_URL}${url} ${data}" );
       Response response = await getDio().post(url,data:data,options: dioOptions);
-      print("RESPONSE：${BASE_URL}${url} ${response}");
+      print("RESPONSE：${BASE_URL}${url}");
+      L.json("${response}");
       BaseResp baseResp = BaseResp(response.data);
       if(baseResp.code != SUCCESS) onError(baseResp.msg);
       if(baseResp.code == TOKEN_ERROR) AcM.logout(context); /*自动退出登录判断*/

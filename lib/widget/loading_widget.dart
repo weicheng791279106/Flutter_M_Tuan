@@ -6,6 +6,7 @@ class LoadingWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return CContainer(
+      expand: true,
       height: double.maxFinite,
       color: Colors.white,
       alignment: Alignment.center,
