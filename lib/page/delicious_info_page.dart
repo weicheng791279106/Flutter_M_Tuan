@@ -5,6 +5,7 @@ import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/conts/load_more_status.dart';
 import 'package:m_tuan_flutter/model/resp/combo_comment_resp.dart';
 import 'package:m_tuan_flutter/model/resp/combo_info_resp.dart';
+import 'package:m_tuan_flutter/page/big_image_page.dart';
 import 'package:m_tuan_flutter/util/http.dart';
 import 'package:m_tuan_flutter/util/navigator_util.dart';
 import 'package:m_tuan_flutter/util/time_util.dart';
@@ -34,12 +35,9 @@ class _Model extends Model {
 /**美食详情页*/
 class DeliciousInfoPage extends CStatefulWidget{
 
+  final int PAGE_SIZE = 10;
   _Model model = _Model();
-
-  final int PAGE_SIZE = 1;
-
   int deliciousId;
-
   ScrollController scrollController = ScrollController();
 
   DeliciousInfoPage(this.deliciousId);
@@ -221,7 +219,10 @@ class DeliciousInfoWidget extends StatelessWidget{
           ],
         ),
         SizedBox(height: 10,),
-        CImage(url:model.combo.imageUrl,width: double.maxFinite,),
+        GestureDetector(
+          child: CImage(url:model.combo.imageUrl,width: double.maxFinite,),
+          onTap: () => BigImagePage.startMe(context, [model.combo.imageUrl]),
+        ),
         SizedBox(height: 10,),
         CText(model.combo.comboSimpleName,textSize: 14,),
         SizedBox(height: 5,),
@@ -439,7 +440,7 @@ class CommentItemWidget extends StatelessWidget{
               padding: EdgeInsets.only(top: 5,bottom: 5),
             ),
             Row(
-              children: getImageWidgets(),
+              children: getImageWidgets(context),
             ),
             Divider(height: 20,),
           ],
@@ -449,10 +450,15 @@ class CommentItemWidget extends StatelessWidget{
   }
 
   /**获取评论图片Widget*/
-  List<Widget> getImageWidgets(){
+  List<Widget> getImageWidgets(BuildContext context){
     List<Widget> imageWidgetList = [];
     model.imageList.forEach((url){
-      imageWidgetList.add(CImage(url: url,width: 70,heiget: 70,));
+      imageWidgetList.add(GestureDetector(
+        child: CImage(url: url,width: 70,heiget: 70,),
+        onTap: (){
+          BigImagePage.startMe(context, model.imageList,initIndex: model.imageList.indexOf(url));
+        },
+      ));
       imageWidgetList.add(SizedBox(width: 5,));
     });
     return imageWidgetList;
