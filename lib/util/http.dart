@@ -28,16 +28,16 @@ class Http{
     try{
       if(data == null) data = FormData();
       data.add("token", await AcM.token());
-      print("HTTP POST：${BASE_URL}${url} ${data}" );
+      L.i("HTTP POST：${BASE_URL}${url} ${data}",tag: "http");
       Response response = await getDio().post(url,data:data,options: dioOptions);
-      print("RESPONSE：${BASE_URL}${url}");
+      L.i("RESPONSE：${BASE_URL}${url}",tag: "http");
       L.json("${response}");
       BaseResp baseResp = BaseResp(response.data);
-      if(baseResp.code != SUCCESS) onError(baseResp.msg);
+      if(baseResp.code != SUCCESS) if(onError != null) onError(baseResp.msg);
       if(baseResp.code == TOKEN_ERROR) AcM.logout(context); /*自动退出登录判断*/
       if(onSuccess != null) onSuccess(response.toString());
     }on Error catch(e){
-      print("HTTP ERROR：$e");
+      L.i("HTTP ERROR：$e",tag: "http");
       if(onError != null) onError("请求错误");
     }
     if(onAfter != null) onAfter();

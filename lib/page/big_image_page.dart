@@ -23,7 +23,7 @@ class BigImagePage extends CStatefulWidget{
   List<Widget> widgetList = [];
 
   static void startMe(BuildContext context,List<String> urls,{int initIndex = -1}){
-    NavigatorUtil.pushWithAnimation(context, BigImagePage(urls, initIndex,));
+    NavigatorUtil.push(context, BigImagePage(urls, initIndex,));
   }
 
   BigImagePage(List<String> urls,int initIndex){

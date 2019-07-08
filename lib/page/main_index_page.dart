@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:m_tuan_flutter/conts/colors.dart';
 import 'package:m_tuan_flutter/conts/text_size.dart';
+import 'package:m_tuan_flutter/manager/acm.dart';
 import 'package:m_tuan_flutter/page/discover_page.dart';
 import 'package:m_tuan_flutter/page/home_page.dart';
 import 'package:m_tuan_flutter/page/mine_page.dart';
 import 'package:m_tuan_flutter/page/order_page.dart';
+import 'package:m_tuan_flutter/util/string_util.dart';
 import 'package:m_tuan_flutter/util/toast.dart';
 import 'package:m_tuan_flutter/widget/c_image.dart';
 import 'package:m_tuan_flutter/widget/eachtab.dart';
@@ -31,6 +33,12 @@ class MainIndexPageState extends State<MainIndexPage> with SingleTickerProviderS
     super.initState();
     controller = new TabController(length: 4, vsync: this);
     controller.addListener((){ setState(() {}); });
+    checkLogin();
+  }
+
+  /**检查是否登录*/
+  void checkLogin() async {
+    if(StringUtils.isEmpty(await AcM.token())) AcM.logout(context);
   }
 
   @override
@@ -49,38 +57,26 @@ class MainIndexPageState extends State<MainIndexPage> with SingleTickerProviderS
     double imageSize = 27;
     double tabTextSize = TextSize.Normal;
 
-    return MaterialApp(
-      builder: (ctx, w) {
-        /*设置字体最大缩放比*/
-        return MaxScaleTextWidget(
-          max: 1.0,
-          child: w,
-        );
-      },
-      theme: ThemeData(
-        accentColor: Colors.grey, /*滑动到底颜色*/
-      ),
-      home: WillPopScope(
-        onWillPop: doubleClickBack,
-        child: Scaffold(
-          body: new TabBarView(
+    return WillPopScope(
+      onWillPop: doubleClickBack,
+      child: Scaffold(
+        body: new TabBarView(
+            controller: controller,
+            children: <Widget>[HomePage(), DiscoverPage(), OrderPage(), MinePage()]),
+        bottomNavigationBar: new Material(
+          color: Colors.white,
+          child: TabBar(
+              indicatorColor: Colors.transparent,
+              indicatorSize: TabBarIndicatorSize.tab,
               controller: controller,
-              children: <Widget>[HomePage(), DiscoverPage(), OrderPage(), MinePage()]),
-          bottomNavigationBar: new Material(
-            color: Colors.white,
-            child: TabBar(
-                indicatorColor: Colors.transparent,
-                indicatorSize: TabBarIndicatorSize.tab,
-                controller: controller,
-                labelColor: CColors.primary,
-                unselectedLabelColor: Colors.black,
-                tabs: <Widget>[
-                  EachTab(text:"首页",height: 50,icon: CImage(asset: tabImage1,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
-                  EachTab(text:"发现",height: 50,icon: CImage(asset: tabImage2,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
-                  EachTab(text:"订单",height: 50,icon: CImage(asset: tabImage3,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
-                  EachTab(text:"我的",height: 50,icon: CImage(asset: tabImage4,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
-                ]),
-          ),
+              labelColor: CColors.primary,
+              unselectedLabelColor: Colors.black,
+              tabs: <Widget>[
+                EachTab(text:"首页",height: 50,icon: CImage(asset: tabImage1,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
+                EachTab(text:"发现",height: 50,icon: CImage(asset: tabImage2,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
+                EachTab(text:"订单",height: 50,icon: CImage(asset: tabImage3,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
+                EachTab(text:"我的",height: 50,icon: CImage(asset: tabImage4,width: imageSize,heiget: imageSize),textStyle: new TextStyle(fontSize: tabTextSize)),
+              ]),
         ),
       ),
     );

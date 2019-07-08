@@ -94,7 +94,7 @@ class DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClien
         color: CColors.bgDefault,
         children: <Widget>[
           CText("发现",textSize: 18,bold: true,padding: EdgeInsets.only(top: 12,bottom: 12),),
-          discoverListResp == null ? LoadingWidget():
+          discoverListResp == null || discoverListResp.discoverList == null ? LoadingWidget():
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(left: 15,right: 15,),

@@ -31,6 +31,10 @@ class NavigatorUtil{
     );
   }
 
+  static void push(BuildContext context,Widget pageWidget){
+    Navigator.push(context, new MaterialPageRoute(builder: (context) => pageWidget),);
+  }
+
   static SlideTransition createTransition(Animation<double> animation, Widget child) {
     return new SlideTransition(
       position: new Tween<Offset>(

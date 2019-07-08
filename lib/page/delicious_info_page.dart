@@ -76,7 +76,7 @@ class DeliciousInfoPage extends CStatefulWidget{
             headerSliverBuilder:(context,innerBoxIsScrolled) => <Widget>[
               MyAppBar(),
             ],
-            body: model.isLoading ? LoadingWidget():
+            body: model.isLoading ? Column(children: <Widget>[LoadingWidget()],):
             model.comboInfoResp == null || model.comboInfoResp.combo == null ? LoadErrorWidget(() => requestComboData(context)):
             Column(
               children: <Widget>[
@@ -367,7 +367,7 @@ class CommentWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     _Model model = _Model().of(context);
-    if(model == null) return SizedBox();
+    if(model == null || model.comboCommentResp == null) return SizedBox();
     return Column(
       children: <Widget>[
         SizedBox(height: 25,),
