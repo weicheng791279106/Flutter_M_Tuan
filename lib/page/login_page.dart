@@ -44,6 +44,7 @@ class LoginPageState extends State<LoginPage>{
   Widget build(BuildContext context) {
     bool isPhoneOk = !StringUtils.isEmpty(controller.text) && controller.text.length == 11;
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
